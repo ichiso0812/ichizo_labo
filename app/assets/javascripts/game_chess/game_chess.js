@@ -1,0 +1,6 @@
+class Soldier{
+	constructor(){
+	}
+	
+	
+}

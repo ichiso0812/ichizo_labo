@@ -1,4 +1,4 @@
-<script src="/assets/javascripts/game_chess.js"></script>
+<script src="/assets/javascripts/game_chess/game_chess.js"></script>
 <style>
     .row div{
         width: 10%;
@@ -7,15 +7,18 @@
 </style>
 <div class="container">
     <div class="row" data-row="0" style="display:flex;flex-direction:row"> 
-        <div class="col-xs-2 bg-clearpink" data-col="0"></div>
-        <div class="col-xs-1 bg-light" data-col="1"></div>
-        <div class="col-xs-1 bg-dark" data-col="2"></div>
-        <div class="col-xs-1 bg-white" data-col="3"></div>
+        <div class="col-xs-2 bg-clearpink"></div>
+        <div class="col-xs-1 bg-light" data-col="0"><%= image_tag 'chess_pawn.jpg', class:'img-fluid'%></div>
+        <div class="col-xs-1 bg-dark" data-col="1"></div>
+        <div class="col-xs-1 bg-white" data-col="2"><img src="/assets/chess_pawn-25fe21d36afc02f178a8f8d5b9b2c90971b8b89be97f6f9011f5343acbb2125f.jpg" class="img-fluid"></div>
         <div class="col-xs-1 bg-dark" data-col="3"></div>
-        <div class="col-xs-1 bg-white" data-col="3"></div>
-        <div class="col-xs-1 bg-dark" data-col="3"></div>
-        <div class="col-xs-1 bg-white" data-col="3"></div>
-        <div class="col-xs-1 bg-dark" data-col="3"></div>
-        <div class="col-xs-2 bg-clearpink"data-col="3"></div>
+        <div class="col-xs-1 bg-white" data-col="4"></div>
+        <div class="col-xs-1 bg-dark" data-col="5"></div>
+        <div class="col-xs-1 bg-white" data-col="6"></div>
+        <div class="col-xs-1 bg-dark" data-col="7"></div>
+        <div class="col-xs-2 bg-clearpink"></div>
     </div>
 </div>
+<script>
+    //$("[data-row='0'] [data-col='0']").html("")
+</script>
