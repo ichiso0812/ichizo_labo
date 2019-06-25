@@ -1,0 +1,81 @@
+<!--CONNECTION-->
+<div class="bg-clearpink pb-3">
+        <div class="container">
+            <section class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6">
+                    <h2 class="text-center m-3">Bienvenu cop1</h2>
+                    <h3 class="text-center m-3">Pour te connecter, c'est par ici ! <i class="em em-grinning mr-2"></i><i class="em em-flag-dz"></i></h3>
+                    <div class="input-group  margin-auto mb-3 mt-3 col-lg-offset-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Pseudo</span>
+                        </div>
+                        <input type="text" id="connection_pseudo_input" class="form-control" placeholder="Pseudo" >
+                    </div>
+                    <div class="w-50 margin-auto">
+                        <button id="connection_button" class="btn btn-success ml-2 mr-2">Connecte moi !</button>
+                        <a id="forgot_pseudo" class="text-info">Pseudo oublié?</a>
+                        <p id="troll_forgot_pseudo"></p>
+                    </div>
+                    <p id="connection_infos_zone" class="text-center mt-3"></p>
+                </div>
+                <div class="col-lg-3"></div>
+            </section>
+        </div>
+    </div>
+<!--INSCRIPTION-->
+    <div class="bg-purple pb-3" style="color: white;">
+        <div class="container">
+            <section class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6">
+                    <h2 class="text-center m-3">Incription</h2>
+                    <p class="text-center">Pour s'inscrire, c'est par là, choisi juste un pseudo par encore pris et...</p>
+                    <div class="input-group  margin-auto mb-3 mt-3 col-lg-offset-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Pseudo</span>
+                        </div>
+                        <input type="text" class="form-control" id="inscription_pseudo_input" placeholder="Pseudo" >
+                    </div>
+                    <button id="inscription_button" class="btn btn-success w-100 margin-auto">Inscris moi!</button>
+                    <p id="inscription_infos_zone" class="text-center mt-3"></p>
+                </div>
+                <div class="col-lg-3"></div>
+            </section>
+        </div>
+    </div>
+</div>
+<script>
+    //INSCRIPTION
+    $("#inscription_button").click(function(){
+       var pseudo = $("#inscription_pseudo_input").val(), infos_zone = $("#inscription_infos_zone")
+       if (pseudo.length<=4){
+           infos_zone.text("Le pseudo doit être d'au moins 5 caractères le bro ;)")
+       }else{
+           $.post(
+               "/user/inscription",
+               {pseudo: pseudo},
+               function(data){
+                    infos_zone.removeClass("text-danger")
+                   if (data.result=="success"){infos_zone.text("Le compte a été créé avec succès, tu peux maintenant te connecter")}
+                   else if (data.result="already_exist"){infos_zone.text("Le pseudo est déja pris :/")}
+               },
+               "json"
+           )
+       }
+    })
+    //CONNECTION
+    $("#connection_button").click(function(){
+       var pseudo = $("#connection_pseudo_input").val(), infos_zone = $("#connection_infos_zone")
+        $.post(
+            "/user/connection",
+            {pseudo: pseudo},
+            function(data){
+                if (data.result=="don't exist"){infos_zone.text("Je n'ai pas trouvé ton pseudo, tu peux t'inscrire juste en dessous si tu veux ;)")}
+                else if (data.result=="connected"){location.reload()}
+            },
+            "json"
+        )
+       
+    })
+</script>

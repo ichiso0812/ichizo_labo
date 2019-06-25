@@ -1,0 +1,34 @@
+<%if session[:user_pseudo].nil?%>
+<style>
+    #forgot_pseudo{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+    <%=render "partials/unconnected_user_home"%>
+<%else%>
+<style>
+</style>
+    <div class="bg-clearpink">
+        <div class="container">
+        <h1 class="text-center mb-5">Bienvenu sur Ichizo_labo ! spèce de fifou</h1>
+        <section>
+            <div class="row bg-dark txt-white p-5">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-6" id="ban_mirror_img"><%= image_tag 'ban_mirror.png', class:"mg-fluid", style: "max-width:100%;height:auto;"%></div>
+                <div class="col-lg-4">
+                    <h2 class="text-center">Mirror game</h2>
+                    <ul>
+                        <li>Les blocs sont obigés de bougés ensemble sauf si ils croisent un autre bloc (bouge avec les flèches)</li>
+                        <li>Appuis sur espace pour changer les blocs que tu controles !</li>
+                        <li>Recupère les blocs jaune !</li>
+                    </ul>
+                    <button class="btn btn-success" id="mirror_game_button">Montre qui est le plus fort !</button>
+                    <p>Tu as déja joué x parties à ce jeu !</p>
+                </div>
+                <div class="col-lg-1">
+            </div>
+        </section>
+        </div>
+    </div>
+<%end%>
