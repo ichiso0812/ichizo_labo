@@ -4,9 +4,6 @@ Rails.application.routes.draw do
   get 'pages/home'
 
 
-
-
-
   #inscription
   post "user/inscription" => "user#inscription"
   #connection
@@ -14,5 +11,7 @@ Rails.application.routes.draw do
   #offline
   get "user/offline" => "user#offline"
 
+  #*******CHESS*******
+  get 'games/chess'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

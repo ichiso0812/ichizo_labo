@@ -9,6 +9,11 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/pages/home">Accueil</a>
             </li>
+            <li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/games/chess" >Echecs</a>
+                </li>
+            </li>
             <%if not session[:user_pseudo].nil?%>
                 <li class="nav-item">
                     <a class="nav-link" href="/user/offline" id="user_offline">Se déconnecter</a>
@@ -19,8 +24,5 @@
     </nav>
 </header>
 <script>
-$("#user_offline").click(function(){
-    location.href = "/user/offline"
-   //   $.post("/user/offline", {}, function(data){}, "json")
-})
+$("#user_offline").click(function(){ location.href = "/user/offline" })
 </script>
