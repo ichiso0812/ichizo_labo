@@ -135,6 +135,7 @@ class White_knight extends Knight{
 	}
 }
 
+//initialize grid
 var black_rook_0 = new Black_rook(), black_rook_1 = new Black_rook(), black_knight_0 = new Black_knight(), black_knight_1 = new Black_knight(), black_bishop_0 = new Black_bishop(), black_bishop_1 = new Black_bishop();
 var black_king = new Black_king(), black_queen = new Black_queen()
 var black_pawn_0 = new Black_pawn(),black_pawn_1 = new Black_pawn(),black_pawn_2 = new Black_pawn(),black_pawn_3 = new Black_pawn(),black_pawn_4 = new Black_pawn(),black_pawn_5 = new Black_pawn(),black_pawn_6 = new Black_pawn(),black_pawn_7 = new Black_pawn();
@@ -152,12 +153,14 @@ var game_array = [
 		[white_rook_0,white_knight_0,white_bishop_0,white_queen,white_king,white_bishop_1,white_knight_1,white_rook_1],
 	]
 
-
+//draw grid
 function draw_grid(game_array){
 	game_array.forEach(function(elem_row, row){
 		elem_row.forEach(function(piece, col){
 			if (!isEmpty(piece)){
 				$("[data-row='"+row+"'] [data-col='"+col+"']").html("<img class='w-100' src='"+piece.img+"'/>")
+			}else{
+				$("[data-row='"+row+"'] [data-col='"+col+"']").html("")
 			}
 		})	
 	})
@@ -179,3 +182,4 @@ function draw_grid(game_array){
     }
     return true;
 }
+

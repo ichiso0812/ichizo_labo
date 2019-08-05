@@ -94,38 +94,44 @@
         <div class="col-lg-1 bg-white p-0" data-col="7"></div>
         <div class="col-lg-4 bg-clearpink"></div>
     </div>
-    <div id="mouse_follower" style="z-index:1;position:absolute;"> </div>
+    <div id="mouse_follower" style="z-index:1;position:absolute;"></div>
 </div>
 
 
 <script>
 draw_grid(game_array)
-var have_piece = false;
-$("[data-col]").click(function(){
+
+function move_piece(){
+    $("[data-col]").click(function move_piece(e){
     var col = $(this).data("col"), row = $(this).closest(".row").data("row");
     var mouse_follower = $("#mouse_follower")
-    if (!have_piece){
-        $(document).on( "mousemove", function(event) {
-            mouse_follower.html("<img data-col='"+col+"' data-row='"+row+"' src='"+game_array[row][col].img +"'/>")
-            mouse_follower.css("left", event.pageX)
-            mouse_follower.css("top", event.pageY)
-        });
-        have_piece = true
-    }
-    else{
-        //$(document).off();
-        var old_col = mouse_follower.find("img").data("col"), old_row = mouse_follower.find("img").data("row")
-        game_array[row][col] = game_array[old_row][old_col]
-        game_array[old_row][old_col] = {}
-        draw_grid(game_array)
-        mouse_follower.html("")
-        mouse_follower.css("left", 0)
-        mouse_follower.css("top", 0)
-        have_piece = false
-        console.log("je suis la")
-    }
-    console.log("et la")
-    
+    console.log("click")
+    $("[data-col]").off()
+   
+    $(document).on( "mousemove", function(event) {
+        mouse_follower.html("<img data-col='"+col+"' data-row='"+row+"' src='"+game_array[row][col].img +"'/>")
+        mouse_follower.css("left", event.pageX)
+        mouse_follower.css("top", event.pageY)
+        
+    });
+     $("[data-col]").click(function(){
+            $(document).off()
+            var old_col = mouse_follower.find("img").data("col"), old_row = mouse_follower.find("img").data("row")
+            console.log("OLD ROW : " + old_row)
+            game_array[row][col] = game_array[old_row][old_col]
+            game_array[old_row][old_col] = {}
+            draw_grid(game_array)
+            mouse_follower.html("")
+            mouse_follower.css("left", 0)
+            mouse_follower.css("top", 0)
+            console.log("deuxieme click")
+            $("[data-col]").off()
+            move_piece()
+        })
+
 })
+}
+move_piece()
+
     
 </script>
