@@ -42,6 +42,10 @@ class Black_pawn extends Pawn{
 		this.img = "/assets/chess/black_pawn-f3278c412dfd9b04fb352d228c8e49a5a917d5d754734b66eb540cd0dc42cc12.png"
 		Black_pawns.push(this)
 	}
+
+	where_can_move(actual_row, actual_col){
+		return [[actual_row+1, actual_col]]
+	}
 }
 
 var Black_bishops = []
@@ -91,6 +95,10 @@ class White_pawn extends Pawn{
 		super()
 		this.img = "/assets/chess/white_pawn-6a756e9d2787d8b1752723b9b2187b01c9363f4a45937011c89447f33f3169f1.png"
 		White_pawns.push(this)
+	}
+
+	where_can_move(actual_row, actual_col){
+		return [[actual_row-1, actual_col]]
 	}
 }
 
@@ -154,13 +162,41 @@ var game_array = [
 	]
 
 //draw grid
-function draw_grid(game_array){
+function draw_grid(game_array){ //TODO: delete green case
 	game_array.forEach(function(elem_row, row){
 		elem_row.forEach(function(piece, col){
-			if (!isEmpty(piece)){
+			if (!is_empty(piece)){
 				$("[data-row='"+row+"'] [data-col='"+col+"']").html("<img class='w-100' src='"+piece.img+"'/>")
 			}else{
 				$("[data-row='"+row+"'] [data-col='"+col+"']").html("")
+			}
+		})	
+	})
+	clean_show_where_can_move(game_array)
+}
+
+
+//show_where_can_move
+function show_where_can_move(coords_array){
+	clean_show_where_can_move(game_array)
+	coords_array.forEach(function(coords){
+		if ($("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color")=="rgb(0, 0, 0)"){
+            console.log("je suis la")
+			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#50754b")
+		}else{
+            console.log("je suis la lol")
+			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#99de90")
+		}
+
+	})
+}
+function clean_show_where_can_move(game_array){
+	game_array.forEach(function(elem_row, row){
+		elem_row.forEach(function(piece, col){
+			if ($("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color")=="rgb(80, 117, 75)"){
+				$("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color", "black")
+			}else if ($("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color")=="rgb(153, 222, 144)"){
+				$("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color", "white")
 			}
 		})	
 	})
@@ -175,7 +211,7 @@ function draw_grid(game_array){
  })
 
  /*USEFUL FUNCTION*/
- function isEmpty(obj) { //test empty object
+ function is_empty(obj) { //test empty object
     for(var key in obj) {
         if(obj.hasOwnProperty(key))
             return false;
