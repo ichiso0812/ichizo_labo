@@ -1,3 +1,14 @@
+<style>
+#modulo_anim_row{
+    width:100%;
+    background-color:black;
+    margin:0;
+}
+#modulo_anim_row div{
+    display:flex;
+    justify-content: center;
+}
+</style>
 <!--CONNECTION-->
 <div class="bg-clearpink pb-3">
         <div class="container">
@@ -44,7 +55,11 @@
             </section>
         </div>
     </div>
+        
 </div>
+<div class="row" id="modulo_anim_row">
+                 <div class="col-lg-12"><canvas id="modulo_anim" width="1500" height="500"></canvas></div>
+            </div>
 <script>
     //INSCRIPTION
     $("#inscription_button").click(function(){
@@ -78,4 +93,48 @@
         )
        
     })
+
+    //MODULO ANIM
+    //initialize canvas and paint it black
+    var modulo_anim_zone = $("#modulo_anim")
+    var modulo_anim = {width: parseInt(modulo_anim_zone.css("width")), height: parseInt(modulo_anim_zone.css("height"))}
+    var ctx = modulo_anim_zone[0].getContext("2d")
+    var multiple=3
+    //get all point
+    modulo_anim_points = []
+    for (var i=0; i<=149; i++){modulo_anim_points.push({x: modulo_anim.width/2 + 200*(Math.cos( ((Math.PI*2)/150)*(i+1))), y:modulo_anim.height/2 + 200*Math.sin( ((Math.PI*2)/150)*(i+1))})}
+
+    function draw_modulo_anim(){
+        ctx.clearRect(0,0,modulo_anim.width, modulo_anim.height)
+        ctx.beginPath()
+        ctx.fillStyle = "black"
+        ctx.fillRect(0,0,modulo_anim.width, modulo_anim.height)
+        ctx.closePath()
+
+        ctx.beginPath()
+        ctx.fillStyle = "black"
+        ctx.shadowBlur = 100
+        ctx.shadowColor="red"
+        ctx.arc(modulo_anim.width/2, modulo_anim.height/2, 200, 0, Math.PI*2, false)
+        ctx.fill()
+        ctx.shadowBlur = 0
+        ctx.closePath()
+
+
+        modulo_anim_points.forEach(function(point, index){
+            ctx.beginPath()
+            ctx.moveTo(point.x, point.y)
+            ctx.lineWidth  = 0.1
+            ctx.shadowBlur = 2
+            ctx.shadowColor="pink"
+            ctx.strokeStyle = 'rgba(255, 0, 162,1)'
+            ctx.lineTo(modulo_anim_points[parseInt((index*multiple)%150)].x, modulo_anim_points[parseInt((index*multiple))%150].y)
+            ctx.stroke();
+            
+            ctx.closePath();
+        })
+        multiple += 0.015
+    }
+    
+    setInterval(draw_modulo_anim, 50)
 </script>

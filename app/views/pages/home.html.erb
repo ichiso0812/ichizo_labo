@@ -4,9 +4,11 @@
         text-decoration: underline;
         cursor: pointer;
     }
+
 </style>
     <%=render "partials/unconnected_user_home"%>
 <%else%>
+<!--CONNECTED USER ONLY-->
 <style>
 </style>
     <div class="bg-clearpink">
@@ -26,9 +28,10 @@
                     <button class="btn btn-success" id="mirror_game_button">Montre qui est le plus fort !</button>
                     <p>Tu as déja joué x parties à ce jeu !</p>
                 </div>
-                <div class="col-lg-1">
-            </div>
+                <div class="col-lg-1"></div>
+            </div> 
         </section>
         </div>
     </div>
 <%end%>
+
