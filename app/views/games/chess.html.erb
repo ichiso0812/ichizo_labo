@@ -127,19 +127,7 @@ $("[data-col]").click(function(e){
     }
 })
 
-//show_where_can_move
-function show_where_can_move(coords_array){
-	coords_array.forEach(function(coords){
-		if ($("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color")=="rgb(0, 0, 0)"){
-            console.log("je suis la")
-			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#50754b")
-		}else{
-            console.log("je suis la lol")
-			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#99de90")
-		}
 
-	})
-}
 
     
 </script>
