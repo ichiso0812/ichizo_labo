@@ -120,7 +120,6 @@
         ctx.shadowBlur = 0
         ctx.closePath()
 
-
         modulo_anim_points.forEach(function(point, index){
             ctx.beginPath()
             ctx.moveTo(point.x, point.y)
@@ -130,11 +129,9 @@
             ctx.strokeStyle = 'rgba(255, 0, 162,1)'
             ctx.lineTo(modulo_anim_points[parseInt((index*multiple)%150)].x, modulo_anim_points[parseInt((index*multiple))%150].y)
             ctx.stroke();
-            
             ctx.closePath();
         })
         multiple += 0.015
     }
-    
-    setInterval(draw_modulo_anim, 50)
+    setInterval(draw_modulo_anim, 75)
 </script>

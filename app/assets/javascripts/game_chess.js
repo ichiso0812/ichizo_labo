@@ -9,17 +9,47 @@ class Bishop{
 	constructor(){
 		Bishops.push(this)
 	}
+	where_can_move(actual_row, actual_col){
+		var result = []
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7; i++){result.push([actual_row+i, actual_col+i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row+i, actual_col-i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col+i])}
+		for(var i =1; actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col-i])}
+		return result;
+	}
+
 }
 var Rooks = []
 class Rook{
 	constructor(){
 		Rooks.push(this)
 	}
+	where_can_move(actual_row, actual_col){
+		var result = []
+		for(var i=1; actual_row+i <= 7; i++){result.push([actual_row+i, actual_col])}
+		for(var i=1; actual_col+i <= 7; i++){result.push([actual_row, actual_col+i])}
+		for(var i=1; actual_row-i >= 0; i++){result.push([actual_row-i, actual_col])}
+		for(var i=1; actual_row-i >= 0; i++){result.push([actual_row, actual_col-i])}
+		return result;
+	}
 }
+
 var Queens = []
 class Queen{
 	constructor(){
 		Queens.push(this)
+	}
+	where_can_move(actual_row, actual_col){
+		var result = []
+		for(var i=1; actual_row+i <= 7; i++){result.push([actual_row+i, actual_col])}
+		for(var i=1; actual_col+i <= 7; i++){result.push([actual_row, actual_col+i])}
+		for(var i=1; actual_row-i >= 0; i++){result.push([actual_row-i, actual_col])}
+		for(var i=1; actual_row-i >= 0; i++){result.push([actual_row, actual_col-i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7; i++){result.push([actual_row+i, actual_col+i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row+i, actual_col-i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col+i])}
+		for(var i =1; actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col-i])}
+		return result;
 	}
 }
 var Kings = []
@@ -27,12 +57,37 @@ class King{
 	constructor(){
 		Kings.push(this)
 	}
+	where_can_move(actual_row, actual_col){
+		var result = []
+		if (actual_row+1<=7){result.push([actual_row+1, actual_col])}
+		if (actual_col+1<=7){result.push([actual_row, actual_col+1])}
+		if (actual_row-1>=0){result.push([actual_row-1, actual_col])}
+		if (actual_col-1>=0){result.push([actual_row, actual_col-1])}
+		if (actual_col+1<=7 && actual_row+1<=7){result.push([actual_row+1, actual_col+1])}
+		if (actual_row+1<=7 && actual_col-1>=0){result.push([actual_row+1, actual_col-1])}
+		if (actual_row-1>=0 && actual_col+1<=7){result.push([actual_row-1, actual_col+1])}
+		if (actual_col-1>=0 && actual_row-1>=0){result.push([actual_row-1, actual_col-1])}
+		return result
+	}
 }
 var Knights = []
 class Knight{
 	constructor(){
 		Knights.push(this)
 	}
+	where_can_move(actual_row, actual_col){
+		var result = []
+		if (actual_row+2<=7 && actual_col+1<=7){result.push([actual_row+2, actual_col+1])}
+		if (actual_row+2<=7 && actual_col-1>=0){result.push([actual_row+2, actual_col-1])}
+		if (actual_row-2>=0 && actual_col+1<=7){result.push([actual_row-2, actual_col+1])}
+		if (actual_row-2>=0 && actual_col-1>=0){result.push([actual_row-2, actual_col-1])}
+		if (actual_row+1<=7 && actual_col+2<=7){result.push([actual_row+1, actual_col+2])}
+		if (actual_row+1<=7 && actual_col-2>=0){result.push([actual_row+1, actual_col-2])}
+		if (actual_row-1>=0 && actual_col+2<=7){result.push([actual_row-1, actual_col+2])}
+		if (actual_row-1>=0 && actual_col-2>=0){result.push([actual_row-1, actual_col-2])}
+		return result
+	}
+
 }
 /*PIONS NOIRS*/
 var Black_pawns = []
@@ -44,6 +99,9 @@ class Black_pawn extends Pawn{
 	}
 
 	where_can_move(actual_row, actual_col){
+		if (actual_row==1){
+			return [[actual_row+1, actual_col],[actual_row+2, actual_col]]
+		}
 		return [[actual_row+1, actual_col]]
 	}
 }
@@ -177,14 +235,13 @@ function draw_grid(game_array){ //TODO: delete green case
 
 
 //show_where_can_move
+
 function show_where_can_move(coords_array){
 	clean_show_where_can_move(game_array)
 	coords_array.forEach(function(coords){
 		if ($("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color")=="rgb(0, 0, 0)"){
-            console.log("je suis la")
 			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#50754b")
 		}else{
-            console.log("je suis la lol")
 			$("[data-row='"+coords[0]+"'] [data-col='"+coords[1]+"']").css("background-color", "#99de90")
 		}
 
@@ -194,7 +251,7 @@ function clean_show_where_can_move(game_array){
 	game_array.forEach(function(elem_row, row){
 		elem_row.forEach(function(piece, col){
 			if ($("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color")=="rgb(80, 117, 75)"){
-				$("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color", "black")
+				$("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color", "#000000")
 			}else if ($("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color")=="rgb(153, 222, 144)"){
 				$("[data-row='"+row+"'] [data-col='"+col+"']").css("background-color", "white")
 			}

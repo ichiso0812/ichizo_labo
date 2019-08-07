@@ -105,6 +105,7 @@ $(".container").on( "mousemove", function(event) {
     $("#mouse_follower").css("top", event.pageY-50)
 });
 
+/*move piece*/
 var moving_piece = false
 $("[data-col]").click(function(e){
     var col = $(this).data("col"), row = $(this).closest(".row").data("row")
@@ -113,9 +114,7 @@ $("[data-col]").click(function(e){
         if (!moving_piece){
             mouse_follower.html("<img data-col='"+col+"' data-row='"+row+"' src='"+game_array[row][col].img +"'/>")
             moving_piece = true
-            if ( typeof game_array[row][col].where_can_move === 'function'){
-                show_where_can_move(game_array[row][col].where_can_move(row, col))
-            }
+            show_where_can_move(game_array[row][col].where_can_move(row, col))
         }else{
             var old_col = mouse_follower.find("img").data("col"), old_row = mouse_follower.find("img").data("row")
             game_array[row][col] = game_array[old_row][old_col]
