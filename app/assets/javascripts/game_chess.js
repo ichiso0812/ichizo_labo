@@ -11,10 +11,53 @@ class Bishop{
 	}
 	where_can_move(actual_row, actual_col){
 		var result = []
-		for(var i=1; actual_row+i <= 7 || actual_col+i<=7; i++){result.push([actual_row+i, actual_col+i])}
-		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row+i, actual_col-i])}
-		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col+i])}
-		for(var i =1; actual_row-i >= 0 || actual_col-i>=0; i++){result.push([actual_row-i, actual_col-i])}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7; i++){
+			if (piece_collision(actual_row+i, actual_col+i, game_array[actual_row][actual_col].team)=="ennemy"){
+				result.push(["ennemy"]);
+				break;
+			}else if (piece_collision(actual_row+i, actual_col+i, game_array[actual_row][actual_col].team)=="ally"){
+				result.push(["ally"]);
+				break;
+			}else{
+				result.push([actual_row+i, actual_col+i])
+			}
+			
+		}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){
+			if (piece_collision(actual_row+i, actual_col-i, game_array[actual_row][actual_col].team)=="ennemy"){
+				result.push(["ennemy"]);
+				break;
+			}else if (piece_collision(actual_row+i, actual_col-i, game_array[actual_row][actual_col].team)=="ally"){
+				result.push(["ally"]);
+				break;
+			}else{
+				result.push([actual_row+i, actual_col-i])
+			}
+		}
+		for(var i=1; actual_row+i <= 7 || actual_col+i<=7 ||actual_row-i >= 0 || actual_col-i>=0; i++){
+			if (piece_collision(actual_row-i, actual_col+i, game_array[actual_row][actual_col].team)=="ennemy"){
+				result.push(["ennemy"]);
+				break;
+			}else if (piece_collision(actual_row-i, actual_col+i, game_array[actual_row][actual_col].team)=="ally"){
+				result.push(["ally"]);
+				break;
+			}else{
+				result.push([actual_row-i, actual_col+i])
+			}
+			result.push([actual_row-i, actual_col+i])
+		}
+		for(var i =1; actual_row-i >= 0 || actual_col-i>=0; i++){
+			if (piece_collision(actual_row+i, actual_col-i, game_array[actual_row][actual_col].team)=="ennemy"){
+				result.push(["ennemy"]);
+				break;
+			}else if (piece_collision(actual_row+i, actual_col-i, game_array[actual_row][actual_col].team)=="ally"){
+				result.push(["ally"]);
+				break;
+			}else{
+				result.push([actual_row+i, actual_col-i])
+			}
+			result.push([actual_row-i, actual_col-i])
+		}
 		return result;
 	}
 
@@ -119,6 +162,7 @@ class Black_rook extends Rook{
 	constructor(){
 		super()
 		this.img = "/assets/chess/black_rook-b830bf5cd5fa2c90abd0e71b588aa0317f64c187b6e59ce7d1c604b345743fda.png"
+		this.team = "black"
 		Black_rooks.push(this)
 	}
 }
@@ -127,6 +171,7 @@ class Black_queen extends Queen{
 	constructor(){
 		super()
 		this.img = "/assets/chess/black_queen-7cfac11ad3084126f2f1bab2372e8fe62c23f64de632438cbbff69ca3741aaa1.png"
+		this.team = "black"
 		Black_queens.push(this)
 	}
 }
@@ -134,6 +179,7 @@ var Black_kings = []
 class Black_king extends King{
 	constructor(){
 		super()
+		this.team = "black"
 		this.img = "/assets/chess/black_king-c19c6bcd122c69d2c8e3d73b4f0d92aeba2cc1ae58b7fb2d64e48010b068a88c.png"
 		Black_kings.push(this)
 	}
@@ -143,6 +189,7 @@ class Black_knight extends Knight{
 	constructor(){
 		super()
 		this.img = "/assets/chess/black_knight-d96cc0c294630a3465c752934feac2ecd39f3521fc15e27eec6bd93c4c89cdac.png"
+		this.team = "black"
 		Black_knights.push(this)
 	}
 }
@@ -152,6 +199,7 @@ class White_pawn extends Pawn{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_pawn-6a756e9d2787d8b1752723b9b2187b01c9363f4a45937011c89447f33f3169f1.png"
+		this.team = "white"
 		White_pawns.push(this)
 	}
 
@@ -165,6 +213,7 @@ class White_bishop extends Bishop{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_bishop-782d44f1cc883bcf1543f642589303fd6a896ad3a17cc1017a03575c47af4c1a.png"
+		this.team = "white"
 		White_bishops.push(this)
 	}
 }
@@ -173,6 +222,7 @@ class White_rook extends Rook{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_rook-94258c916a505a18f5b6163c24b5a46ba677e2f84c317e4e07a2fd74f962538e.png"
+		this.team = "white"
 		White_rooks.push(this)
 	}
 }
@@ -181,6 +231,7 @@ class White_queen extends Queen{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_queen-523e9f1cb91d4ebf5ef4823186fd2636451f276a43d6843db0d7f217d54a1629.png"
+		this.team = "white"
 		White_queens.push(this)
 	}
 }
@@ -189,6 +240,7 @@ class White_king extends King{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_king-bdcb2b233e1b3a3a70e4de2ffb448bd64930026efe7a5acb2df376d375341513.png"
+		this.team = "white"
 		White_kings.push(this)
 	}
 }
@@ -197,6 +249,7 @@ class White_knight extends Knight{
 	constructor(){
 		super()
 		this.img = "/assets/chess/white_knight-ad98482b8f47a3d9167ea19a8e5534b3cf234739e8a5ff45446b680952099fe8.png"
+		this.team = "white"
 		White_knights.push(this)
 	}
 }
@@ -259,6 +312,15 @@ function clean_show_where_can_move(game_array){
 	})
 }
 
+//collision
+function piece_collision(row, col, team){
+	if (!is_empty(game_array[row, col])){
+		if (team==game_array[row, col]){
+			return "ally"
+		}else{return"ennemy"}
+	}
+	return false;
+}
  //responsive grids
  $("[data-col]").css("height", $("[data-col]").css("width"));
  $(".row").css("height", $("[data-col]").css("width"))
