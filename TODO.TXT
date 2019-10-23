@@ -1,0 +1,6 @@
+#HOMEPAGE
+    #animation between canvas
+    #add cursor to control math_function_factor dans modulo_anim
+
+#Bootstrap
+    #charge dependencies js  popper
