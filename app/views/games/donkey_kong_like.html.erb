@@ -1,0 +1,93 @@
+<style>
+    canvas{
+        display:block;
+        margin:auto;
+    }
+ </style>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' #TODO: ??????mais ca marche....
+  %>
+
+ 
+ <script>
+    var config ={
+        type:Phaser.auto, 
+        width: 1200,
+        height: 768,
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        },
+        physics: { //what kind of physics you want in da game
+            default: "arcade",
+            arcade: {
+                gravity: {y: 100},
+                debug: false
+            }
+        }
+    }
+    var platforms,player, ladders
+    //controls
+    var input_directions, input_space
+    var game = new Phaser.Game(config)
+    function preload(){
+        this.load.image("platform","/assets/donkey_kong_like/platform.png")
+        this.load.image("ladder","/assets/donkey_kong_like/ladder.png")
+        this.load.image("bomb","/assets/donkey_kong_like/bomb.png")
+        this.load.spritesheet("player", "/assets/donkey_kong_like/dude.png",{frameWidth: 32, frameHeight: 48})
+    }
+    function create(){
+        //background
+
+        //platforms
+        platforms = this.physics.add.staticGroup()
+        platforms.create(1000, 490, "platform")
+        platforms.create(800, 490, "platform")
+        //ground
+        platforms.create(600,736,"platform").setScale(3).refreshBody()
+        //ladders
+        ladders = this.physics.add.staticGroup()
+        ladders.create(900, 590, "ladder").setScale(0.5).refreshBody();
+        //player
+        player = this.physics.add.sprite(800,650,"player")
+        player.setCollideWorldBounds(true)
+        player.body.setGravityY(300)
+
+        //collider;
+        this.physics.add.collider(player,platforms)
+
+        this.physics.add.overlap(player, ladders,up_ladders, null, this)
+
+        //controls
+        input_directions = this.input.keyboard.createCursorKeys()
+        input_space = this.input.keyboard.addKey("SPACE")
+    }
+
+    function update(){
+        //controls
+        //directions
+        if (input_directions.left.isDown){
+            player.setVelocityX(-160)
+        }
+        else if (input_directions.right.isDown){
+            player.setVelocityX(160)
+        }
+        else{
+            player.setVelocityX(0)
+        }
+        //jump
+        if (input_space.isDown && player.body.touching.down){
+            player.setVelocityY(-200)
+        }
+    }
+
+    function up_ladders(player, ladder){
+        //ladder.disableBody(true, true)
+        if (input_directions.up.isDown){
+            player.setVelocityY(-100)
+            console.log("up")
+        }else{
+            player.setVelocityY(0)
+        }
+    }
+ </script>

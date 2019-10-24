@@ -2,8 +2,10 @@ Rails.application.routes.draw do
   #*********HOME*********
   root "pages#home"
   get 'pages/home'
-
-
+  #*********GAMES*********
+  get 'pages/games'
+  get 'games/phaser_test'
+  get 'games/donkey_kong_like'
   #inscription
   post "user/inscription" => "user#inscription"
   #connection

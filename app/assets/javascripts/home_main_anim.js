@@ -12,6 +12,9 @@ change_button.click(function(){
         if ($(this).css("display")!="none"){$(this).css("display", "none")}
     })
     $("#"+ANIMS[anim_index]+"_anim").show()
+    //change controls panel
+    $(".anim_controls").hide()
+    $("#"+ANIMS[anim_index]+"_anim_control").show()
 })
 
 /*------------------------------STARS ANIM------------------------------*/
@@ -109,12 +112,16 @@ function modulo_animation(){
         modulo_ctx.closePath();
     })
     multiple += speed
+    $("#modulo_multiple").val(multiple.toFixed(2))
+    $("#modulo_display_multiple").text(multiple.toFixed(2))
 }
 modulo_animation()
-//CONTROLES
 
+//CONTROLS
 $("#modulo_display_points_number").text(points_number)
 $("#modulo_display_speed").text(speed)
+$("#modulo_multiple").val(multiple.toFixed(2))
+$("#modulo_display_multiple").text(multiple.toFixed(2))
 $(".modulo_anim_control").change(function(){
     switch ($(this).attr("id")){
         case "modulo_points_number":
@@ -122,15 +129,22 @@ $(".modulo_anim_control").change(function(){
             points_number = parseInt($(this).val())
             $("#modulo_display_points_number").text(points_number)
             create_modulo_anim_points(points_number)
-            console.log("hello")
             break;
         case "modulo_speed":
             speed=parseFloat($(this).val())
             $("#modulo_display_speed").text(speed)
+            if(speed==0){//change to input if value=0 to change multiple manually
+                $("#modulo_multiple, #modulo_display_multiple").toggle()
+            }else{
+                $("#modulo_multiple").hide()
+                $("#modulo_display_multiple").show()
+            }
             break;
     }
 })
-
+$("#modulo_multiple").change(function(){
+    multiple = parseInt($(this).val())
+})
 
 
 /*--------------/\/\/\USEFULL FUNCTIONS/\/\/\--------------*/

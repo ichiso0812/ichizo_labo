@@ -1,3 +1,8 @@
+<style>
+    header{
+        background-color:black;
+    }
+</style>
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-black">
     <a class="navbar-brand" href="#"><strong>Ichizo_labo</strong></a>
@@ -11,7 +16,7 @@
             </li>
             <li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/games/chess" >Projects</a>
+                    <a class="nav-link" href=<%=url_for(controller:"pages", action:"games")%>>Projects</a>
                 </li>
             </li>
             <%if not session[:user_pseudo].nil?%>

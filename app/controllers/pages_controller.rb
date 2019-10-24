@@ -3,4 +3,8 @@ class PagesController < ApplicationController
   def home
   end
   
+  #GAMES ACTION
+  def games
+  end
+  
 end

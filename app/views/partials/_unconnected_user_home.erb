@@ -22,7 +22,32 @@
         max-width:500px;
         color:white;
     }
-
+    input[type="number"]{
+        margin-bottom:1rem;
+        background-color:grey;
+    }
+    #modulo_multiple{
+        display:none;
+    }
+    #next_anim{
+        margin: auto;
+        display: block;
+        margin-top: 1.5rem;
+        width: 50%;
+        height: 3rem;
+        background: none;
+        border: 2px solid white;
+        border-radius: 5px;
+        color: white;
+        transition-property: background-color, color, border;
+        transition-duration:0.7s;
+        font-weight:bold;
+    }
+    #next_anim:hover{
+        background-color:white;
+        color:black;
+        border:2px solid black;
+    }
 </style>
 <canvas width="1920" height="1080" class="background_canvas" id="modulo_anim"></canvas>
 <canvas width="1920" height="1080" class="background_canvas" id="stars_anim"></canvas>
@@ -34,13 +59,15 @@
                 Lorem ipsum dolor sit amet, consectetur adi
                 piscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
         </p>
-        <div id="modulo_anim_control">
-            <label for="modulo_points_number" id="modulo_points_number_label">Nombre de lignes : <span id="modulo_display_points_number"></span></label>
+        <div id="modulo_anim_control" class="anim_controls">
+            <label for="modulo_points_number" id="modulo_points_number_label">Nombre de points : <span id="modulo_display_points_number"></span></label>
             <input type="range" id="modulo_points_number" min="1" max="1000" value="150" step="1" class="modulo_anim_control"/>
             <label for="modulo_speed" id="modulo_speed_label">Vitesse : <span id="modulo_display_speed"></span></label>
             <input type="range" id="modulo_speed" min="0" max="0.03" value="0.005" step="0.001" class="modulo_anim_control"/>
+            <label for="modulo_multiple" id="modulo_multiple_label">Multiple : <span id="modulo_display_multiple"></span></label>
+            <input type="number" id="modulo_multiple" val="0" step="0.01"/>
         </div>
-        <button id="next_anim">Change</button> <!--TODO: put icon-->
+        <button id="next_anim">Changer d'animation</button> <!--TODO: put icon-->
     </section>
 </div>
 
