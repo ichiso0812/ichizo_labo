@@ -10,6 +10,9 @@
         top:0;
         left:0;
     }
+    #modulo_anim{
+        background-color:black;
+    }
     #stars_anim{
         background-color:black;
         display:none;
@@ -19,6 +22,7 @@
         max-width:500px;
         color:white;
     }
+
 </style>
 <canvas width="1920" height="1080" class="background_canvas" id="modulo_anim"></canvas>
 <canvas width="1920" height="1080" class="background_canvas" id="stars_anim"></canvas>
@@ -30,9 +34,16 @@
                 Lorem ipsum dolor sit amet, consectetur adi
                 piscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
         </p>
+        <div id="modulo_anim_control">
+            <label for="modulo_points_number" id="modulo_points_number_label">Nombre de lignes : <span id="modulo_display_points_number"></span></label>
+            <input type="range" id="modulo_points_number" min="1" max="1000" value="150" step="1" class="modulo_anim_control"/>
+            <label for="modulo_speed" id="modulo_speed_label">Vitesse : <span id="modulo_display_speed"></span></label>
+            <input type="range" id="modulo_speed" min="0" max="0.03" value="0.005" step="0.001" class="modulo_anim_control"/>
+        </div>
         <button id="next_anim">Change</button> <!--TODO: put icon-->
     </section>
 </div>
+
 <script>
 /*RESIZE ELEMS TO WINDOW SIZE*/
 $("#main_container").css("height", window.innerHeight-(window.innerHeight*(5/100)))

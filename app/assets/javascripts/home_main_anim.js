@@ -77,18 +77,17 @@ var modulo_anim = {width: parseInt(modulo_anim_zone.css("width")), height: parse
 var modulo_ctx = modulo_anim_zone[0].getContext("2d")
 //MODULO ANIM
 //var
-var multiple=2, anim_radius = 500, math_function_factor = 150, x_offset = 250, time_color = 0
+var multiple=0, anim_radius = 450, points_number = 150, x_offset = 250, speed=0.005
 //get all point
 modulo_anim_points = []
-for (var i=0; i<=149; i++){modulo_anim_points.push({x: modulo_anim.width/2 + anim_radius*(Math.cos( ((Math.PI*2)/math_function_factor)*(i+1)))+x_offset, y:modulo_anim.height/2 + anim_radius*Math.sin( ((Math.PI*2)/math_function_factor)*(i+1))})}
+function create_modulo_anim_points(points_number){
+    for (var i=0; i<points_number; i++){modulo_anim_points.push({x: modulo_anim.width/2 + anim_radius*(Math.cos( ((Math.PI*2)/points_number)*(i+1)))+x_offset, y:modulo_anim.height/2 + anim_radius*Math.sin( ((Math.PI*2)/points_number)*(i+1))})}
+}
+create_modulo_anim_points(points_number)
 
-function draw_modulo_anim(){
+function modulo_animation(){
+    requestAnimationFrame(modulo_animation)
     modulo_ctx.clearRect(0,0,modulo_anim.width, modulo_anim.height)
-    modulo_ctx.beginPath()
-    modulo_ctx.fillStyle = "black"
-    modulo_ctx.fillRect(0,0,modulo_anim.width, modulo_anim.height)
-    modulo_ctx.closePath()
-
     modulo_ctx.beginPath()
     modulo_ctx.fillStyle = "black"
     modulo_ctx.shadowBlur = 100
@@ -97,24 +96,42 @@ function draw_modulo_anim(){
     modulo_ctx.fill()
     modulo_ctx.shadowBlur = 0
     modulo_ctx.closePath()
-    time_color +=0.1
     modulo_anim_points.forEach(function(point, index){
-        
         modulo_ctx.beginPath()
         modulo_ctx.moveTo(point.x, point.y)
         modulo_ctx.lineWidth  = 0.5
         modulo_ctx.shadowBlur=3
-        //console.log((Math.abs(Math.cos(index)*255)%255+index) )
-        modulo_ctx.strokeStyle = 'rgba('+ (155+time_color*0.1)%255 +','+(155+time_color*8)%255+','+(155+time_color*12)%255+',1)'
+        modulo_ctx.strokeStyle = 'rgba(155,155,155,1)'
         modulo_ctx.strokeStyle = 'hsla(0, 100%, 100%, '+getRandomInt(10, 100)+')'
-        modulo_ctx.lineTo(modulo_anim_points[parseInt((index*multiple)%150)].x, modulo_anim_points[parseInt((index*multiple))%150].y)
+        modulo_ctx.lineTo(modulo_anim_points[parseInt((index*multiple)%points_number)].x, modulo_anim_points[parseInt((index*multiple)%points_number)].y)
         modulo_ctx.stroke();
         modulo_ctx.shadowBlur=0
         modulo_ctx.closePath();
     })
-    multiple += 0.005
+    multiple += speed
 }
-setInterval(draw_modulo_anim, 15)
+modulo_animation()
+//CONTROLES
+
+$("#modulo_display_points_number").text(points_number)
+$("#modulo_display_speed").text(speed)
+$(".modulo_anim_control").change(function(){
+    switch ($(this).attr("id")){
+        case "modulo_points_number":
+            modulo_anim_points = []
+            points_number = parseInt($(this).val())
+            $("#modulo_display_points_number").text(points_number)
+            create_modulo_anim_points(points_number)
+            console.log("hello")
+            break;
+        case "modulo_speed":
+            speed=parseFloat($(this).val())
+            $("#modulo_display_speed").text(speed)
+            break;
+    }
+})
+
+
 
 /*--------------/\/\/\USEFULL FUNCTIONS/\/\/\--------------*/
 /*MATH*/
