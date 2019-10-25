@@ -42,7 +42,7 @@
         //platforms
         platforms = this.physics.add.staticGroup()
         platforms.create(400, 568, "platform").setScale(2).refreshBody();
-        platforms.create(600,400,"platform").setRotation(-0.6).refreshBody();
+        platforms.create(600,400,"platform")
         platforms.create(50,250,"platform")
         platforms.create(750,220,"platform")
         //stars
@@ -86,7 +86,7 @@
         this.physics.add.collider(player, platforms) //accept groups
         this.physics.add.collider(stars, platforms)
         this.physics.add.overlap( player, stars, collect_star, null, this)
-        this.physics.add.collider(player, bombs, hit_bomb, null, this)
+        this.physics.add.overlap(player, bombs, hit_bomb, null, this)
 
         //controls
         cursors = this.input.keyboard.createCursorKeys()
