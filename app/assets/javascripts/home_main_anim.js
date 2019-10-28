@@ -1,3 +1,5 @@
+$( document ).ready(function() {
+
 var ANIMS = [
     "modulo",
     "stars"
@@ -169,3 +171,5 @@ function sound_fade_in(sound){
         sound.volume+=0.005
     }, 100)
 }
+
+})

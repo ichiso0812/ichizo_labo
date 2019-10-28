@@ -4,17 +4,19 @@
     <title>IchizoLabo</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <!--BOOTSTRAP-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!--EMOJIS-->
     <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
     <!--JQUERY-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!--MY CODE-->
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-   
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload'  %>
   </head>
   <body>
     <%= render "partials/header"%>
     <%= yield %>
-    <%# <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload'  %>
+    
   </body>
 </html>

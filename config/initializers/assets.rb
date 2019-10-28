@@ -15,8 +15,6 @@ Rails.application.config.assets.paths << Rails.root.join('node_modules')
 
 #Rails.application.config.assets.precompile += %w( game_chess.js )
 
-
-
 #HOMEPAGE
 #animation
 Rails.application.config.assets.precompile += %w( home_main_anim.js )

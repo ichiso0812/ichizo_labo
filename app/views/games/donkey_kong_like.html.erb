@@ -5,8 +5,7 @@
     }
  </style>
  <%# https://rexrainbow.github.io/phaser3-rex-notes/docs/site/shape-rectangle/ %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' #TODO: ??????mais ca marche....
-  %>
+
  <script>
     var config ={
         type:Phaser.auto, 
@@ -39,17 +38,9 @@
         this.load.spritesheet("player", "/assets/donkey_kong_like/dude.png",{frameWidth: 24, frameHeight: 39})
     }
     function create(){
-        //background
-
+        //backgrounds
         //platforms
         platforms = this.physics.add.staticGroup()
-        /*platforms.create(1000, 586, "platform")
-        platforms.create(600, 554, "platform")*/ 
-        platforms.create(200, 300, "platform")
-        platforms.create(645, 300, "platform")
-        platforms.create(800,300, "platform")
-
-        platforms.create(1000,100, "platform")
         //ground
         platforms.create(50,600, "platform")
         platforms.create(150,600, "platform")
@@ -59,15 +50,53 @@
         platforms.create(550,600,"platform")
         platforms.create(650,600,"platform")
         platforms.create(750,600,"platform")
+        //first stage
+        platforms.create(750,500,"platform")
+        platforms.create(650,500,"platform")
+        platforms.create(550,500,"platform")
+        platforms.create(450,500,"platform")
+        platforms.create(350,500,"platform")
+        //ground to first stage platform
+        platforms.create(220,550,"platform")
+        //second stage
+        platforms.create(0,400,"platform")
+        platforms.create(135,400,"platform")
+        platforms.create(235,400,"platform")
+        platforms.create(335,400,"platform")
+        platforms.create(435,400,"platform")
+        platforms.create(535,400,"platform")
+        //third stage
+        platforms.create(800,250,"platform")
+        platforms.create(700,250,"platform")
+        platforms.create(600,250,"platform")
+        platforms.create(350,250,"platform")
+        platforms.create(250,250,"platform")
+        platforms.create(150,250,"platform")
+        platforms.create(50,250,"platform")
+        //fourth stage
+        platforms.create(50,100,"platform")
+        platforms.create(182,100,"platform")
+        platforms.create(282,100,"platform")
         //ladders
         ladders = this.physics.add.staticGroup()
-        ladders.create(378, 735, "ladder")
-        ladders.create(420, 485, "ladder")
+        //bottom_left_ladder
+        ladders.create(67,563,"ladder")
+        ladders.create(67,513,"ladder")
+        ladders.create(67,463,"ladder")
+        ladders.create(67,413,"ladder")
+        //second_ladder
+        ladders.create(535,363,"ladder")
+        ladders.create(535,313,"ladder")
+        ladders.create(535,263,"ladder")
+        //third later
+        ladders.create(116,213,"ladder")
+        ladders.create(116,163,"ladder")
+        ladders.create(116,113,"ladder")
         //bombs
         bombs = this.physics.add.group()
-        bomb_timer = this.time.addEvent({delay:250,loop:true, callback:drop_projectile})
+        bomb_timer = this.time.addEvent({delay:5000,loop:true, callback:drop_projectile})
         //destroy bombs
-        destroy_bombs = this.add.rectangle(1190,640,100,80,0xfff)
+        destroy_bombs = this.add.rectangle(775,563,50,50,0xfff)
         this.physics.add.existing(destroy_bombs)
         //player
         player = this.physics.add.sprite(800,520,"player")
@@ -108,7 +137,7 @@
         input_space = this.input.keyboard.addKey("SPACE")
 
         //text
-        score_text = this.add.text(16,700,"score: 0", {fontSize:"32px", fill:"#000"})
+        score_text = this.add.text(16,585,"score: 0", {fontSize:"35px", fill:"#000"})
     }
     function update(){
         //controls
@@ -127,7 +156,7 @@
         }
         //jump
         if (input_space.isDown && player.body.touching.down){
-            player.setVelocityY(-200)
+            player.setVelocityY(-240)
         }
         //bombs
         bombs.children.iterate(function(bomb){
@@ -158,11 +187,11 @@
         }
     }
     function drop_projectile(){
-       var bomb = bombs.create(1250, 0, "bomb")
-       bomb.setBounce(0.8)
+       var bomb = bombs.create(0, 0, "bomb")
+       bomb.setBounce(0.55)
        bomb.setCollideWorldBounds(true)
-       bomb.direction = "left"
-       bomb.setVelocityX(-100)
+       bomb.direction = "right"
+       bomb.setVelocityX(100)
     }
     function coll_bomb_destroy_bombs(destroy_bombs, bomb){
         bombs.remove(bomb, true)
@@ -171,7 +200,7 @@
         score_text.setText("Score: "+score)
     }
     function bombs_bounce_on_ladder(bomb, ladder){
-        bomb.setVelocityY(-100)
+        bomb.setVelocityY(-20)
     }
     function game_over(player, bomb){
         this.physics.pause()
