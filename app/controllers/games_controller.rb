@@ -3,6 +3,8 @@ class GamesController < ApplicationController
     end
     def phaser_test
     end
+
+    
     def donkey_kong_like
     end
 end

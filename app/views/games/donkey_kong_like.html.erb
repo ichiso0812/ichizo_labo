@@ -4,7 +4,8 @@
         margin:auto;
     }
  </style>
- <%# https://rexrainbow.github.io/phaser3-rex-notes/docs/site/shape-rectangle/ %>
+ <%# https://rexrainbow.github.io/phaser3-rex-notes/docs/site/shape-rectangle/ 
+ %>
 
  <script>
     var config ={
@@ -38,9 +39,187 @@
         this.load.spritesheet("player", "/assets/donkey_kong_like/dude.png",{frameWidth: 24, frameHeight: 39})
     }
     function create(){
-        //backgrounds
         //platforms
         platforms = this.physics.add.staticGroup()
+        //ladders
+        ladders = this.physics.add.staticGroup()
+        create_level()
+        //bombs
+        bombs = this.physics.add.group()
+        function bomb_timer(time =100){
+            setTimeout(function(){
+                drop_projectile()
+                bomb_timer(Phaser.Math.Between(900,4500))
+            }, time); 
+        }
+        bomb_timer()
+        //destroy bombs
+        destroy_bombs = this.add.rectangle(850,563,50,50,0xfff)
+        this.physics.add.existing(destroy_bombs)
+        //player
+        player = this.physics.add.sprite(800,520,"player")
+        player.setCollideWorldBounds(true)
+        player.body.setGravityY(300)
+        //anims
+        this.anims.create({
+            key:"player_left",
+            frames:this.anims.generateFrameNumbers("player", {start:0, end:1}),
+            frameRate:10,
+            repeat:-1
+        })
+        this.anims.create({
+            key:"player_right",
+            frames:this.anims.generateFrameNumbers("player", {start:3, end:4}),
+            frameRate:10,
+            repeat:-1
+        })
+        this.anims.create({
+            key:"player_not_move",
+            frames: [{key:"player", frame:2}],
+            frameRate:10
+        })
+        //collider;
+        this.physics.add.collider(player,platforms)
+        this.physics.add.collider(bombs, platforms)
+        this.physics.add.collider(destroy_bombs, platforms)
+        //this.physics.add.collider(player, bombs, game_over, null, this)
+        this.physics.add.overlap(bombs, destroy_bombs, coll_bomb_destroy_bombs, null, this)
+        //this.physics.add.overlap(bombs, ladders, bombs_bounce_on_ladder, null, this)
+
+        this.physics.add.overlap(player, ladders,up_ladders, null, this)
+
+        //controls
+        input_directions = this.input.keyboard.createCursorKeys()
+        input_space = this.input.keyboard.addKey("SPACE")
+
+        //text
+        score_text = this.add.text(16,585,"score: 0", {fontSize:"35px", fill:"#000"})
+    }
+    function update(){
+        var self = this
+        //controls
+        //directions
+        if (input_directions.left.isDown){
+            player.setVelocityX(-160)
+            player.anims.play("player_left", true)
+        }
+        else if (input_directions.right.isDown){
+            player.setVelocityX(160)
+            player.anims.play("player_right", true)
+        }
+        else{
+            player.setVelocityX(0)
+            player.anims.play("player_not_move", true)
+        }
+        //jump
+        if (input_space.isDown && player.body.touching.down){
+            player.setVelocityY(-240)
+        }
+        //bombs
+        bombs.children.iterate(function(bomb){
+            var bomb_collide_platform = false
+            platforms.children.iterate(function(platform){
+                
+                if (bomb.body.touching.down){
+                    bomb_collide_platform = true
+                }
+            })
+            var check_overlap_ladder = false
+            ladders.children.iterate(function(ladder){
+                
+                if (checkOverlap(bomb, ladder) && !bomb_collide_platform){
+                    if (bomb.x!=ladder.x){
+                        bomb.setBounce(0)
+                        bomb.body.reset(ladder.x,bomb.y )
+                    }
+                   
+                    check_overlap_ladder = true
+                }
+                
+            })
+            if (check_overlap_ladder){
+                /*if (!bomb.velocity_y_at_ladder){
+                    bomb.velocity_y_at_ladder = Phaser.Math.Between(0,100)>50 ?  0 : 70
+                }*/
+                
+                bomb.body.setAllowGravity(false)
+                bomb.setVelocityX(0)
+                bomb.setVelocityY(/*bomb.velocity_y_at_ladder||*/35)
+                // console.log("true")
+            }else{
+                bomb.body.setAllowGravity()
+                bomb.setBounce(bomb.bounce)
+                //bomb.velocity_y_at_ladder = undefined
+                if (bomb.direction=="left"){
+                    bomb.setVelocityX(-bomb.velocity_x)
+                }else if (bomb.direction=="right"){
+                    bomb.setVelocityX(bomb.velocity_x)
+                }
+            }
+
+
+            ladders.children.iterate(function(ladder){
+                if (checkOverlap(bomb, ladder)){
+                   
+                }else{
+                    
+                    // console.log("false")
+                }
+            })
+    
+            if (bomb.x<=30){
+                bomb.direction = "right"
+            }else if(bomb.x>770){
+                bomb.direction="left"
+            }
+        })
+    }
+
+    function up_ladders(player, ladder){
+        if (input_directions.up.isDown){
+            player.setVelocityY(-100)
+            player.setVelocityX(0)
+        }else if (input_directions.down.isDown){
+            player.setVelocityY(100)
+        }else{
+            player.setVelocityY(0)
+        }
+    }
+    //projectiles
+    function drop_projectile(){ 
+        var can_spawn_at = [
+            [0,0, "right"],
+            [850,150, "left"],
+            [850,330, "left"]
+        ]
+        var random_index = Phaser.Math.Between(0,can_spawn_at.length-1)
+        var spawn_at = [Phaser.Math.Between(can_spawn_at[random_index][0]-50, can_spawn_at[random_index][0]+50),Phaser.Math.Between(can_spawn_at[random_index][1]-50, can_spawn_at[random_index][1]+50)]
+        var bomb = bombs.create(spawn_at[0], spawn_at[1], "bomb")
+        bomb.bounce = Phaser.Math.Between(35,75)/100
+        bomb.setBounce(bomb.bounce)
+        bomb.setCollideWorldBounds(true)
+        bomb.direction = can_spawn_at[random_index][2]
+        bomb.velocity_x = Phaser.Math.Between(100,150), bomb.velocity_y_at_start = Phaser.Math.Between(-200,300)
+        //bomb.setVelocityX(can_spawn_at[random_index][2]=="right" ? bomb.velocity_x : -bomb.velocity_x)
+        bomb.setVelocityX(bomb.velocity_y_at_start)
+    }
+    
+    function coll_bomb_destroy_bombs(destroy_bombs, bomb){
+        bombs.remove(bomb, true)
+        bomb.destroy()
+        score +=1
+        score_text.setText("Score: "+score)
+    }
+    function bombs_coll_ladder(bomb, ladder){
+
+    }
+    //game over
+    function game_over(player, bomb){
+        this.physics.pause()
+        gameOver=true
+    }
+
+    function create_level(){ // to a class level generator
         //ground
         platforms.create(50,600, "platform")
         platforms.create(150,600, "platform")
@@ -77,8 +256,6 @@
         platforms.create(50,100,"platform")
         platforms.create(182,100,"platform")
         platforms.create(282,100,"platform")
-        //ladders
-        ladders = this.physics.add.staticGroup()
         //bottom_left_ladder
         ladders.create(67,563,"ladder")
         ladders.create(67,513,"ladder")
@@ -92,118 +269,17 @@
         ladders.create(116,213,"ladder")
         ladders.create(116,163,"ladder")
         ladders.create(116,113,"ladder")
-        //bombs
-        bombs = this.physics.add.group()
-        bomb_timer = this.time.addEvent({delay:5000,loop:true, callback:drop_projectile})
-        //destroy bombs
-        destroy_bombs = this.add.rectangle(775,563,50,50,0xfff)
-        this.physics.add.existing(destroy_bombs)
-        //player
-        player = this.physics.add.sprite(800,520,"player")
-        player.setCollideWorldBounds(true)
-        player.body.setGravityY(300)
-        //anims
-        this.anims.create({
-            key:"player_left",
-            frames:this.anims.generateFrameNumbers("player", {start:0, end:1}),
-            frameRate:10,
-            repeat:-1
+    }
+
+    function checkOverlap(spriteA, spriteB, offset=12) {
+        var boundsA = spriteA.getBounds()
+        var boundsB = spriteB.getBounds()
+        var arr = [spriteA, spriteB]
+        arr.forEach(function(spr){
+            spr.width -= offset
+            spr.height -= offset
         })
-        this.anims.create({
-            key:"player_right",
-            frames:this.anims.generateFrameNumbers("player", {start:3, end:4}),
-            frameRate:10,
-            repeat:-1
-        })
-        this.anims.create({
-            key:"player_not_move",
-            frames: [{key:"player", frame:2}],
-            frameRate:10
-        })
-
-
-        //collider;
-        this.physics.add.collider(player,platforms)
-        this.physics.add.collider(bombs, platforms)
-        this.physics.add.collider(destroy_bombs, platforms)
-        //this.physics.add.collider(player, bombs, game_over, null, this)
-        this.physics.add.overlap(bombs, destroy_bombs, coll_bomb_destroy_bombs, null, this)
-        this.physics.add.overlap(bombs, ladders, bombs_bounce_on_ladder, null, this)
-
-        this.physics.add.overlap(player, ladders,up_ladders, null, this)
-
-        //controls
-        input_directions = this.input.keyboard.createCursorKeys()
-        input_space = this.input.keyboard.addKey("SPACE")
-
-        //text
-        score_text = this.add.text(16,585,"score: 0", {fontSize:"35px", fill:"#000"})
-    }
-    function update(){
-        //controls
-        //directions
-        if (input_directions.left.isDown){
-            player.setVelocityX(-160)
-            player.anims.play("player_left", true)
-        }
-        else if (input_directions.right.isDown){
-            player.setVelocityX(160)
-            player.anims.play("player_right", true)
-        }
-        else{
-            player.setVelocityX(0)
-            player.anims.play("player_not_move", true)
-        }
-        //jump
-        if (input_space.isDown && player.body.touching.down){
-            player.setVelocityY(-240)
-        }
-        //bombs
-        bombs.children.iterate(function(bomb){
-            switch (bomb.direction){
-                case "left":
-                    bomb.setVelocityX(-150)
-                    break;
-                case "right":
-                    bomb.setVelocityX(150)
-                    break;
-            }
-            if (bomb.x<=30){
-                bomb.direction = "right"
-            }else if(bomb.x>770){
-                bomb.direction="left"
-            }
-        })
-    }
-
-    function up_ladders(player, ladder){
-        if (input_directions.up.isDown){
-            player.setVelocityY(-100)
-            player.setVelocityX(0)
-        }else if (input_directions.down.isDown){
-            player.setVelocityY(100)
-        }else{
-            player.setVelocityY(0)
-        }
-    }
-    function drop_projectile(){
-       var bomb = bombs.create(0, 0, "bomb")
-       bomb.setBounce(0.55)
-       bomb.setCollideWorldBounds(true)
-       bomb.direction = "right"
-       bomb.setVelocityX(100)
-    }
-    function coll_bomb_destroy_bombs(destroy_bombs, bomb){
-        bombs.remove(bomb, true)
-        bomb.destroy()
-        score +=100
-        score_text.setText("Score: "+score)
-    }
-    function bombs_bounce_on_ladder(bomb, ladder){
-        bomb.setVelocityY(-20)
-    }
-    function game_over(player, bomb){
-        this.physics.pause()
-        gameOver=true
+    
+        return Phaser.Geom.Intersects.RectangleToRectangle(boundsA, boundsB)
     }
  </script>
