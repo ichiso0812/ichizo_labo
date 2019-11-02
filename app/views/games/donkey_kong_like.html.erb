@@ -36,6 +36,7 @@
         this.load.image("platform","/assets/donkey_kong_like/platform.png")
         this.load.image("ladder","/assets/donkey_kong_like/ladder.png")
         this.load.image("bomb","/assets/donkey_kong_like/bomb.png")
+        this.load.image("collectible", "/assets/donkey_kong_like/star.png")
         this.load.spritesheet("player", "/assets/donkey_kong_like/dude.png",{frameWidth: 24, frameHeight: 39})
     }
     function create(){
@@ -53,6 +54,11 @@
             }, time); 
         }
         bomb_timer()
+        //collectibles
+        collectibles = this.physics.add.group()
+        var collectible_spawn_at = collectibles_random_pos()
+        var collectible = collectibles.create(collectible_spawn_at[0], collectible_spawn_at[1], "collectible")
+        collectible.setBounce(0.4)
         //destroy bombs
         destroy_bombs = this.add.rectangle(850,563,50,50,0xfff)
         this.physics.add.existing(destroy_bombs)
@@ -82,16 +88,17 @@
         this.physics.add.collider(player,platforms)
         this.physics.add.collider(bombs, platforms)
         this.physics.add.collider(destroy_bombs, platforms)
+        this.physics.add.collider(collectibles, platforms)
+        this.physics.add.collider(player, collectibles, col_player_collectible, null, this)
         //this.physics.add.collider(player, bombs, game_over, null, this)
         this.physics.add.overlap(bombs, destroy_bombs, coll_bomb_destroy_bombs, null, this)
         //this.physics.add.overlap(bombs, ladders, bombs_bounce_on_ladder, null, this)
-
+        
         this.physics.add.overlap(player, ladders,up_ladders, null, this)
 
         //controls
         input_directions = this.input.keyboard.createCursorKeys()
         input_space = this.input.keyboard.addKey("SPACE")
-
         //text
         score_text = this.add.text(16,585,"score: 0", {fontSize:"35px", fill:"#000"})
     }
@@ -119,54 +126,41 @@
         bombs.children.iterate(function(bomb){
             var bomb_collide_platform = false
             platforms.children.iterate(function(platform){
-                
                 if (bomb.body.touching.down){
                     bomb_collide_platform = true
                 }
             })
             var check_overlap_ladder = false
             ladders.children.iterate(function(ladder){
-                
                 if (checkOverlap(bomb, ladder) && !bomb_collide_platform){
                     if (bomb.x!=ladder.x){
                         bomb.setBounce(0)
                         bomb.body.reset(ladder.x,bomb.y )
                     }
-                   
                     check_overlap_ladder = true
                 }
-                
             })
-            if (check_overlap_ladder){
-                /*if (!bomb.velocity_y_at_ladder){
-                    bomb.velocity_y_at_ladder = Phaser.Math.Between(0,100)>50 ?  0 : 70
-                }*/
+            if (!bomb.velocity_y_at_ladder){
+                bomb.velocity_y_at_ladder = Phaser.Math.Between(0,100)>99 ?  0 : 50
+            }
+            if (check_overlap_ladder && bomb.velocity_y_at_ladder!=0){
                 
+
                 bomb.body.setAllowGravity(false)
                 bomb.setVelocityX(0)
-                bomb.setVelocityY(/*bomb.velocity_y_at_ladder||*/35)
-                // console.log("true")
+                bomb.setVelocityY(bomb.velocity_y_at_ladder)
+                
+               
             }else{
                 bomb.body.setAllowGravity()
                 bomb.setBounce(bomb.bounce)
-                //bomb.velocity_y_at_ladder = undefined
+                bomb.velocity_y_at_ladder = undefined
                 if (bomb.direction=="left"){
                     bomb.setVelocityX(-bomb.velocity_x)
                 }else if (bomb.direction=="right"){
                     bomb.setVelocityX(bomb.velocity_x)
                 }
             }
-
-
-            ladders.children.iterate(function(ladder){
-                if (checkOverlap(bomb, ladder)){
-                   
-                }else{
-                    
-                    // console.log("false")
-                }
-            })
-    
             if (bomb.x<=30){
                 bomb.direction = "right"
             }else if(bomb.x>770){
@@ -186,8 +180,8 @@
         }
     }
     //projectiles
-    function drop_projectile(){ 
-        var can_spawn_at = [
+    function drop_projectile(){ //todo: probably can factorize with collectible_random_pos
+        var can_spawn_at = [ //todo : serverside
             [0,0, "right"],
             [850,150, "left"],
             [850,330, "left"]
@@ -210,8 +204,22 @@
         score +=1
         score_text.setText("Score: "+score)
     }
-    function bombs_coll_ladder(bomb, ladder){
+    //collectibles
+    function collectibles_random_pos(){
+        random_y_points = [20, 150, 250, 450 ]//todo : serverside
+        var random_index = Phaser.Math.Between(0, random_y_points.length-1)
+        var spawn_at = [Phaser.Math.Between(10, 790), random_y_points[random_index]]
+        return spawn_at
 
+    }
+    function col_player_collectible(player, collectible){
+        collectible.disableBody(true, true)
+        score += 100;
+        score_text.setText('Score: ' + score);
+        var spawn_at = collectibles_random_pos()
+        collectibles.children.iterate(function(collectible){
+            collectible.enableBody(true,spawn_at[0], spawn_at[1], true, true )
+        })
     }
     //game over
     function game_over(player, bomb){
@@ -219,7 +227,7 @@
         gameOver=true
     }
 
-    function create_level(){ // to a class level generator
+    function create_level(){ // to a class level generator //to serverside
         //ground
         platforms.create(50,600, "platform")
         platforms.create(150,600, "platform")
@@ -279,7 +287,6 @@
             spr.width -= offset
             spr.height -= offset
         })
-    
         return Phaser.Geom.Intersects.RectangleToRectangle(boundsA, boundsB)
     }
  </script>
