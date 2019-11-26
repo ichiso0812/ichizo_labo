@@ -4,3 +4,6 @@
 
 #Bootstrap
     #charge dependencies js  popper
+
+#Donkey kong like
+    #optimiser / supprimer images en trop

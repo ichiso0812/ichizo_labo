@@ -8,7 +8,8 @@
  %>
 
  <script>
-    var config ={
+    /*****----------CONFIG----------*****/
+    var config = {
         type:Phaser.auto, 
         width: 800,
         height: 624,
@@ -25,11 +26,294 @@
             }
         }
     }
-    var platforms,player, ladders, bombs, bomb_timer, destroy_bombs
-    //controls
-    var input_directions, input_space
-    //HUD
-    var score=0, score_text
+    /*****----------BOMBS----------*****/
+    var Bombs = []
+    var bombs, bombs_timer
+    class Bomb extends Phaser.Physics.Arcade.Sprite { //todo: fragmenter un peu tout ca en fonction et commenter
+        constructor(scene){
+            var spawn_coord = Bomb.randomize_spawn()
+            //sprite creation
+            super(scene, spawn_coord.x, spawn_coord.y, "bomb") 
+            //add physics and object to scene
+            scene.add.existing(this)
+            scene.physics.add.existing(this)
+            this.bounce = Phaser.Math.Between(35,75)/100
+            this.setBounce(this.bounce)
+            this.velocity_x = Phaser.Math.Between(100,150)
+            this.velocity_y_at_start = Phaser.Math.Between(-200,300)
+            this.velocity_y_overlap_ladder = -100
+            Bombs.push(this)
+        }
+
+        update(){ 
+            var self = this
+            if (self.direction=="left"){
+                self.setVelocityX(-self.velocity_x)
+            }else if (self.direction=="right"){
+                self.setVelocityX(self.velocity_x)
+            }
+            self.check_direction()
+        }
+        check_direction(){ //change bomb direction when going on the edge of screen
+            if (this.x<=30){
+                this.direction = "right"
+            }else if(this.x>770){
+                this.direction="left"
+            }
+        }
+        /*is_collide_platforms(){
+            platforms.children.iterate(function(platform){
+                if (this.body.touching.down){
+                    return true
+                }
+            })
+            return false
+        }*/
+        /*CLASS METHOD*/
+        static randomize_spawn(){ //randomize position when bomb is create
+            var can_spawn_at = [ //possibles spawn position ; todo : serverside ?
+                [0,0, "right"],
+                [850,150, "left"],
+                [850,330, "left"]
+            ]
+            var random_index = Phaser.Math.Between(0,can_spawn_at.length-1)
+            return {x:Phaser.Math.Between(can_spawn_at[random_index][0]-50, can_spawn_at[random_index][0]+50),
+                    y:Phaser.Math.Between(can_spawn_at[random_index][1]-50, can_spawn_at[random_index][1]+50), 
+                    direction: can_spawn_at[random_index][2]}
+        }
+        static overlap_ladder(bomb, ladder){
+            bomb.setVelocityY(bomb.velocity_y_overlap_ladder)
+        }
+        static destroy(bullet, bomb){
+            bomb.disableBody(true, true)
+            bombs.remove(bomb)
+            bullet.disableBody(true, true)
+            clearTimeout(bullet.destroy_timeout)
+            bullets.remove(bullet)
+        }
+    }
+    
+    /*****----------DESTROY BOMBS---------
+    destroy_bombs = this.add.rectangle(850,563,50,50,0xfff)
+    this.physics.add.existing(destroy_bombs)-*****/
+
+    /*****----------PLAYER----------*****/
+    var Players = []
+    var player
+    class Player extends Phaser.Physics.Arcade.Sprite { 
+        constructor(scene){
+            //construct sprite
+            super(scene, 800, 520, "player")
+            //add to physics and scene
+            scene.add.existing(this)
+            scene.physics.add.existing(this)
+            this.body.setCollideWorldBounds(true)
+            this.body.setGravityY(300)
+            //add controls var
+            this.can_dash = true
+            //create animations
+            this.create_animations(scene)
+            Players.push(this)
+        }
+        update(scene){
+            var self = this
+            this.controls(scene)
+        }
+        /*controls*/
+        controls(scene){
+            this.move_controls(scene)
+            this.shot_controls(scene)
+        }
+        move_controls(scene){
+            var dash_time = 100
+            //moving
+            if (!controls.input_space.isDown || controls.input_space.getDuration()>dash_time){
+                if (controls.input_directions.left.isDown){ //going left
+                    this.setVelocityX(-160)
+                    this.anims.play("player_left", true)
+                }
+                else if (controls.input_directions.right.isDown){ //going right
+                    this.setVelocityX(160)
+                    this.anims.play("player_right", true)
+                }
+                else{ //not move
+                    this.setVelocityX(0)
+                    this.anims.play("player_not_move", true)
+                }
+            }
+            //jump
+            if (controls.input_directions.up.isDown && this.body.touching.down){
+                this.setVelocityY(-240)
+            }
+            //dash
+            if (this.can_dash && controls.input_space.isDown && controls.input_space.getDuration()<dash_time){
+                if (controls.input_directions.left.isDown){
+                    this.setVelocityX(-500)
+                }else if (controls.input_directions.right.isDown){
+                    this.setVelocityX(500)
+                }
+                if (controls.input_directions.up.isDown){
+                    this.setVelocityY(-250)
+                }else if (controls.input_directions.down.isDown){
+                    this.setVelocityY(250)
+                }
+                this.can_dash = false
+                this.setTint(0x7d92ff)//change color of player
+                scene.physics.world.colliders.remove(scene.physics.world.colliders.getActive().find(function(i){ // destroy coll bomb player
+                    return i.name == 'collider_player_bomb'
+                }));
+                setTimeout(function(scene){ // make player not invicible anymore
+                    scene.physics.add.collider(player, bombs, Player.collide_bomb, null, scene).name = 'collider_player_bomb'
+                }, 1000, scene)
+                setTimeout(function(){ //make player can dash again
+                    Players[0].can_dash = true
+                    Players[0].setTint(0xffffff) //return to normal color
+                }, 1000); //Players[0] coz this don't exist in setTimeOut function
+            }
+        }
+        shot_controls(scene){
+            if (controls.pointer.isDown && bullets.children.entries.length <=0){
+                var bullet = new Bullet(scene)
+                bullets.add(bullet)
+            }
+
+        }
+        /*constructor functions*/
+        create_animations(scene){
+            //move left
+            scene.anims.create({
+                key:"player_left",
+                frames:scene.anims.generateFrameNumbers("player", {start:0, end:1}),
+                frameRate:10,
+                repeat:-1 //to loop
+            })
+            //move right
+            scene.anims.create({
+                key:"player_right",
+                frames:scene.anims.generateFrameNumbers("player", {start:3, end:4}),
+                frameRate:10,
+                repeat:-1
+            })
+            //not move
+            scene.anims.create({
+                key:"player_not_move",
+                frames: [{key:"player", frame:2}],
+                frameRate:10
+            })
+        }
+
+        /*CLASS METHODS*/
+        /*collisions methods*/
+        static collect_collectible(player, collectible){ //with collectible
+            collectible.disableBody(true, true)
+            var spawn_at = Collectible.random_spawn_pos() //todo : collectible class function
+            collectibles.children.iterate(function(collectible){
+                collectible.enableBody(true,spawn_at[0], spawn_at[1], true, true )
+            })
+        }
+        static take_ladder(player, ladder){ //with ladder
+            if (controls.input_directions.up.isDown){
+                player.setVelocityY(-100)
+                player.setVelocityX(0)
+            }else if (controls.input_directions.down.isDown){
+                player.setVelocityY(100)
+            }else{
+                player.setVelocityY(0)
+            }
+        }
+        static collide_bomb(player, bomb){ //with bomb
+                this.physics.pause()
+        }
+    }
+    /*****----------BULLETS----------*****/
+    var Bullets = []
+    var bullets
+    class Bullet extends Phaser.Physics.Arcade.Sprite {
+        constructor(scene){
+            //construct object
+            super(scene, player.x, player.y, "bullet")
+            //add to scene
+            scene.add.existing(this)
+            scene.physics.add.existing(this)
+            this.destination = {
+                x:controls.pointer.x,
+                y:controls.pointer.y
+            }
+            this.rotation = Phaser.Math.Angle.Between(player.x, player.y, this.destination.x, this.destination.y )
+            Bullets.push(this) 
+            //destroy bullet after amount of time
+            this.destroy_timeout = setTimeout(function(bullet){
+                bullet.disableBody(true, true)
+                bullets.remove(bullet)
+            }, 1500, this)
+        }
+        update(scene){
+            scene.physics.moveTo(this, this.destination.x, this.destination.y, 500)
+        moveTo.setRotateToTarget(rotateToTarget);
+        }
+        /*CLASS METHOD*/
+        static destroy(bullet){
+           
+        }
+    }
+    /*****----------COLLECTIBLES----------*****/
+    var Collectibles = []
+    var collectibles
+    class Collectible extends Phaser.Physics.Arcade.Sprite {
+        constructor(scene){
+            //randomize spawn
+            var spawn_at = Collectible.random_spawn_pos()
+            //create sprite
+            super(scene, spawn_at.x, spawn_at.y, "collectible")
+            //add object to scene and physics
+            scene.add.existing(this)
+            scene.physics.add.existing(this)
+            this.setBounce(0)
+        }
+
+        /*CLASS METHOD*/
+        static random_spawn_pos(){ //randomize spawn
+            var random_y_points = [20, 150, 250, 450] //todo : serverside ?
+            return {x:Phaser.Math.Between(10, 790), y:random_y_points[Phaser.Math.Between(0, random_y_points.length-1)]}
+        }
+    }
+    /*****----------COLLISIONS----------*****/
+    //special collisions
+    var player_bombs_collision
+    class Collisions {
+        constructor(scene){
+            //platforms (for gravity)
+            scene.physics.add.collider(player, platforms)
+            scene.physics.add.collider(bombs, platforms)
+            scene.physics.add.collider(collectibles, platforms)
+            //player collect collectibles
+            scene.physics.add.collider(player, collectibles, Player.collect_collectible, null, scene)
+            //player take ladders
+            scene.physics.add.overlap(player, ladders, Player.take_ladder, null, scene)
+            //bombs collision ladders
+            scene.physics.add.overlap(bombs, ladders, Bomb.overlap_ladder, null, scene)
+            //player collide bomb
+            scene.physics.add.collider(player, bombs, Player.collide_bomb, null, scene).name = "collider_player_bomb" //name it to disable it later to make dash
+            //bullet collide with bomb 
+            scene.physics.add.overlap(bullets, bombs, Bomb.destroy, null, scene)
+        }
+    }
+    /*****----------CONTROLS----------*****/
+    var controls
+    class Controls {
+        constructor(scene){
+            this.input_directions = {
+                up:scene.input.keyboard.addKey("Z"),
+                down: scene.input.keyboard.addKey("S"),
+                right: scene.input.keyboard.addKey("D"),
+                left: scene.input.keyboard.addKey("Q")
+            }
+            this.input_space = scene.input.keyboard.addKey("SPACE")
+            this.pointer = scene.input.activePointer
+        }
+    }
+    /*****----------GAME----------*****/
+    var platforms, ladders
     var game = new Phaser.Game(config)
 
     function preload(){
@@ -37,194 +321,57 @@
         this.load.image("ladder","/assets/donkey_kong_like/ladder.png")
         this.load.image("bomb","/assets/donkey_kong_like/bomb.png")
         this.load.image("collectible", "/assets/donkey_kong_like/star.png")
+        this.load.image("bullet", "/assets/donkey_kong_like/bullet.png")
         this.load.spritesheet("player", "/assets/donkey_kong_like/dude.png",{frameWidth: 24, frameHeight: 39})
+        
     }
     function create(){
+        /*LEVEL GENERATION*/
         //platforms
+        var self = this
         platforms = this.physics.add.staticGroup()
         //ladders
         ladders = this.physics.add.staticGroup()
         create_level()
+
+        /*OBJECTS*/
+        //controls
+        controls = new Controls(self)
+        //player
+        player = new Player(self)
         //bombs
         bombs = this.physics.add.group()
         function bomb_timer(time =100){
             setTimeout(function(){
-                drop_projectile()
+                var bomb = new Bomb(self)
+                bombs.add(bomb)
                 bomb_timer(Phaser.Math.Between(900,4500))
             }, time); 
         }
         bomb_timer()
+        //bullets
+        bullets = this.physics.add.group()
         //collectibles
         collectibles = this.physics.add.group()
-        var collectible_spawn_at = collectibles_random_pos()
-        var collectible = collectibles.create(collectible_spawn_at[0], collectible_spawn_at[1], "collectible")
-        collectible.setBounce(0.4)
-        //destroy bombs
-        destroy_bombs = this.add.rectangle(850,563,50,50,0xfff)
-        this.physics.add.existing(destroy_bombs)
-        //player
-        player = this.physics.add.sprite(800,520,"player")
-        player.setCollideWorldBounds(true)
-        player.body.setGravityY(300)
-        //anims
-        this.anims.create({
-            key:"player_left",
-            frames:this.anims.generateFrameNumbers("player", {start:0, end:1}),
-            frameRate:10,
-            repeat:-1
-        })
-        this.anims.create({
-            key:"player_right",
-            frames:this.anims.generateFrameNumbers("player", {start:3, end:4}),
-            frameRate:10,
-            repeat:-1
-        })
-        this.anims.create({
-            key:"player_not_move",
-            frames: [{key:"player", frame:2}],
-            frameRate:10
-        })
-        //collider;
-        this.physics.add.collider(player,platforms)
-        this.physics.add.collider(bombs, platforms)
-        this.physics.add.collider(destroy_bombs, platforms)
-        this.physics.add.collider(collectibles, platforms)
-        this.physics.add.collider(player, collectibles, col_player_collectible, null, this)
-        //this.physics.add.collider(player, bombs, game_over, null, this)
-        this.physics.add.overlap(bombs, destroy_bombs, coll_bomb_destroy_bombs, null, this)
-        //this.physics.add.overlap(bombs, ladders, bombs_bounce_on_ladder, null, this)
-        
-        this.physics.add.overlap(player, ladders,up_ladders, null, this)
-
-        //controls
-        input_directions = this.input.keyboard.createCursorKeys()
-        input_space = this.input.keyboard.addKey("SPACE")
-        //text
-        score_text = this.add.text(16,585,"score: 0", {fontSize:"35px", fill:"#000"})
+        var collectible = new Collectible(self)
+        collectibles.add(collectible)
+        //collider
+        var collisions = new Collisions(self)
     }
     function update(){
         var self = this
-        //controls
-        //directions
-        if (input_directions.left.isDown){
-            player.setVelocityX(-160)
-            player.anims.play("player_left", true)
-        }
-        else if (input_directions.right.isDown){
-            player.setVelocityX(160)
-            player.anims.play("player_right", true)
-        }
-        else{
-            player.setVelocityX(0)
-            player.anims.play("player_not_move", true)
-        }
-        //jump
-        if (input_space.isDown && player.body.touching.down){
-            player.setVelocityY(-240)
-        }
+        //player
+        Players.forEach(function(player){
+            player.update(self)
+        })
         //bombs
-        bombs.children.iterate(function(bomb){
-            var bomb_collide_platform = false
-            platforms.children.iterate(function(platform){
-                if (bomb.body.touching.down){
-                    bomb_collide_platform = true
-                }
-            })
-            var check_overlap_ladder = false
-            ladders.children.iterate(function(ladder){
-                if (checkOverlap(bomb, ladder) && !bomb_collide_platform){
-                    if (bomb.x!=ladder.x){
-                        bomb.setBounce(0)
-                        bomb.body.reset(ladder.x,bomb.y )
-                    }
-                    check_overlap_ladder = true
-                }
-            })
-            if (!bomb.velocity_y_at_ladder){
-                bomb.velocity_y_at_ladder = Phaser.Math.Between(0,100)>99 ?  0 : 50
-            }
-            if (check_overlap_ladder && bomb.velocity_y_at_ladder!=0){
-                
-
-                bomb.body.setAllowGravity(false)
-                bomb.setVelocityX(0)
-                bomb.setVelocityY(bomb.velocity_y_at_ladder)
-                
-               
-            }else{
-                bomb.body.setAllowGravity()
-                bomb.setBounce(bomb.bounce)
-                bomb.velocity_y_at_ladder = undefined
-                if (bomb.direction=="left"){
-                    bomb.setVelocityX(-bomb.velocity_x)
-                }else if (bomb.direction=="right"){
-                    bomb.setVelocityX(bomb.velocity_x)
-                }
-            }
-            if (bomb.x<=30){
-                bomb.direction = "right"
-            }else if(bomb.x>770){
-                bomb.direction="left"
-            }
+        Bombs.forEach(function(bomb){
+            bomb.update()
         })
-    }
-
-    function up_ladders(player, ladder){
-        if (input_directions.up.isDown){
-            player.setVelocityY(-100)
-            player.setVelocityX(0)
-        }else if (input_directions.down.isDown){
-            player.setVelocityY(100)
-        }else{
-            player.setVelocityY(0)
-        }
-    }
-    //projectiles
-    function drop_projectile(){ //todo: probably can factorize with collectible_random_pos
-        var can_spawn_at = [ //todo : serverside
-            [0,0, "right"],
-            [850,150, "left"],
-            [850,330, "left"]
-        ]
-        var random_index = Phaser.Math.Between(0,can_spawn_at.length-1)
-        var spawn_at = [Phaser.Math.Between(can_spawn_at[random_index][0]-50, can_spawn_at[random_index][0]+50),Phaser.Math.Between(can_spawn_at[random_index][1]-50, can_spawn_at[random_index][1]+50)]
-        var bomb = bombs.create(spawn_at[0], spawn_at[1], "bomb")
-        bomb.bounce = Phaser.Math.Between(35,75)/100
-        bomb.setBounce(bomb.bounce)
-        bomb.setCollideWorldBounds(true)
-        bomb.direction = can_spawn_at[random_index][2]
-        bomb.velocity_x = Phaser.Math.Between(100,150), bomb.velocity_y_at_start = Phaser.Math.Between(-200,300)
-        //bomb.setVelocityX(can_spawn_at[random_index][2]=="right" ? bomb.velocity_x : -bomb.velocity_x)
-        bomb.setVelocityX(bomb.velocity_y_at_start)
-    }
-    
-    function coll_bomb_destroy_bombs(destroy_bombs, bomb){
-        bombs.remove(bomb, true)
-        bomb.destroy()
-        score +=1
-        score_text.setText("Score: "+score)
-    }
-    //collectibles
-    function collectibles_random_pos(){
-        random_y_points = [20, 150, 250, 450 ]//todo : serverside
-        var random_index = Phaser.Math.Between(0, random_y_points.length-1)
-        var spawn_at = [Phaser.Math.Between(10, 790), random_y_points[random_index]]
-        return spawn_at
-
-    }
-    function col_player_collectible(player, collectible){
-        collectible.disableBody(true, true)
-        score += 100;
-        score_text.setText('Score: ' + score);
-        var spawn_at = collectibles_random_pos()
-        collectibles.children.iterate(function(collectible){
-            collectible.enableBody(true,spawn_at[0], spawn_at[1], true, true )
+        //bullets
+        Bullets.forEach(function(bullet){
+            bullet.update(self)
         })
-    }
-    //game over
-    function game_over(player, bomb){
-        this.physics.pause()
-        gameOver=true
     }
 
     function create_level(){ // to a class level generator //to serverside
