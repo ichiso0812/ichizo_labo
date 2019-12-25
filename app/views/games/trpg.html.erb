@@ -1,0 +1,278 @@
+<style>
+   .wrapper {
+      position: absolute;
+      width: 800px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+   }
+   .floor {
+      -webkit-transform: rotateX(55deg) rotateZ(45deg); 
+      -webkit-transform-style: preserve-3d;
+   }
+   .floor .tile {
+      /* display: inline-block; */
+      background: #111; /* tile color */
+      border: solid 1px gray; /* border color */
+      width: 75px;
+      height: 75px;
+   }
+   /*MY CODE*/
+   /*player*/
+   .floor .tile.player_pos{
+      background: green; 
+   }
+
+   /* move*/
+   .floor .tile.show_where_can_move{
+      background-color: blue;
+   }
+   .floor .tile.path_to_move{
+      background-color: purple;
+   }
+
+   /*HUD*/
+   /*life*/
+   #lifebar_container{
+      width:25%;
+      height:5em;
+   }
+   /*mana*/
+   #available_mana{
+      margin: 1.1em;
+      font-size: 3.5em;
+   }
+   /*end turn button*/
+   #end_turn_button{
+      margin: 1em;
+   }
+</style>
+<div class="wrapper">
+   <div class="floor">
+      <!--GRID GENERATION-->
+      <%for n in 0..9%>
+         <%=content_tag :div, "", class:"row" do%>
+            <%for c in 0..9%>
+               <%=content_tag(:div, "", class:"tile", coords:"[#{n},#{c}]")%>
+            <%end%>
+         <%end%>
+      <%end %>
+   </div>
+</div>
+<!--life-->
+<div class="progress" id="lifebar_container">
+  <div class="progress-bar" role="progressbar" id="lifebar"><span id="actual_life"></span> / <span id="max_life"></span></div>
+</div>
+<div id="available_mana"> 
+</div>
+<button id="end_turn_button">FIN DU TOUR</button>
+<script>
+const level = {
+   cell: {
+      width:  75,
+      height: 75
+   },
+}
+level.grid = {
+   width: 10*level.cell.width,
+   height: 10*level.cell.height
+}
+
+/*END TURN*/
+$("#end_turn_button").click(function(){
+   Players.forEach(function(player){
+      player.mana = player.start_turn_mana
+      player.actualize_mana_hud()
+   })
+})
+
+function dom_elem_with_coords(coords){ //obect wiith x and y 
+   return $(".tile[coords='["+coords.x+","+coords.y+"]'")
+}
+
+/*PLAYER*/
+var Players = []
+class Player {
+   constructor(){
+      var self = this
+      
+      //pv
+      this.max_pv = 200
+      this.pv = this.max_pv
+      //mana
+      this.start_turn_mana = 4
+      this.mana = this.start_turn_mana
+      //movement
+      this.coords = {
+         x: 0,
+         y: 0
+      }
+      this.move_mode = false
+      this.move({x: 4, y:4})
+
+      Players.push(this)
+
+      /*DOM INTERACTION*/
+      //hover_player ==> show where can move
+      $(".player_pos").mouseenter({self: self}, self.hover_player)
+      //mouse_leave ==> remove show where can move
+      $(".player_pos").mouseleave({self: self}, self.mouse_leave)
+      //go in mouve mode, show where can move
+      $(".player_pos").click({self: self}, self.on_click)
+      
+      //move mode
+      $(".tile:not(.player_pos)").click({self: self}, self.event_remove_move_mode)
+      
+      //setup hud
+      //life
+      $("#lifebar").attr("style", "width: "+ (this.pv * (100/this.max_pv)) + "%;")
+      $("#actual_life").text(this.pv)
+      $("#max_life").text(this.max_pv)
+      //mana
+      $("#available_mana").text(this.start_turn_mana)
+   }
+      
+   /*MOVE*/
+   on_click(event){
+      self = event.data.self
+     
+      self.move_mode = true
+       console.log(self.move_mode)
+      self.show_where_can_move()
+      $(".show_where_can_move").mouseenter( {self: self},self.show_path_to_move)
+   }
+   event_move(event) {
+      event.data.self.mana -= event.data.distance
+      //pour que le joueur passe sur chaque case du chemin, 
+      //on multiplie l'index par un nombre en milliseconde pour décaler le déplacement
+      event.data.path.forEach(function(tile, index){
+         setTimeout(() => {
+            event.data.self.move({
+            x: parseInt($(tile).attr("coords")[1]),
+            y: parseInt($(tile).attr("coords")[3])
+         })
+         }, index * 100);     //move_speed
+      })
+   }
+   move(destination) { //params: object with w and y coords
+      $(".player_pos").off().removeClass("player_pos")
+      this.coords.x = destination.x
+      this.coords.y = destination.y
+      $("div[coords='["+this.coords.x+","+this.coords.y+"]'").off()
+      this.move_mode = false
+      dom_elem_with_coords(this.coords).addClass("player_pos")
+      this.remove_move_mode()
+      var self = this
+      $(".player_pos").mouseenter({self: self}, self.hover_player)
+      $(".player_pos").mouseleave({self: self}, self.mouse_leave)
+      $(".player_pos").click({self: self}, self.on_click)
+   }
+   show_path_to_move(event){ 
+      if(event.data.self.move_mode){
+         $(".path_to_move").removeClass("path_to_move")
+         let path = [] //store all path's tiles
+         let actual_coords = Object.assign({}, event.data.self.coords) //to copy instead of reference
+         let mana = Object.assign( {}, event.data.self).mana
+         //destination coords
+         let destination = {
+            x: parseInt($(event.target).attr("coords")[1]),
+            y: parseInt($(event.target).attr("coords")[3])
+         }
+
+         //axe x
+         while (actual_coords.x != destination.x && mana>0){
+            if (actual_coords.x < destination.x){
+               actual_coords.x +=1
+               path.push($(".tile[coords='["+actual_coords.x+","+actual_coords.y+"]']"))
+            } 
+            else {
+               actual_coords.x -=1
+               path.push($(".tile[coords='["+actual_coords.x+","+actual_coords.y+"]']"))
+            }
+            mana--
+         }
+         //axe y
+         while (actual_coords.y != destination.y && mana>0){
+            if (actual_coords.y < destination.y){
+               actual_coords.y +=1
+               path.push($(".tile[coords='["+actual_coords.x+","+actual_coords.y+"]']"))
+            } 
+            else {
+               actual_coords.y -=1
+               path.push($(".tile[coords='["+actual_coords.x+","+actual_coords.y+"]']"))
+            }
+            mana--
+         }
+         let self = event.data.self
+         $(".show_where_can_move").off("click")
+         path.forEach(function(tile){
+            //ajout de la class path to move (coloration)
+            $(tile).addClass("path_to_move")
+            $(tile).on("click", {self: self, path: path, distance: self.mana - mana},self.event_move)
+         })
+      }
+   }
+   remove_move_mode(){
+      this.move_mode = false
+      //$(".path_to_move").off()
+      $(".path_to_move").removeClass("path_to_move")
+      $(".show_where_can_move").off("mouseenter")
+      $(".tile").removeClass("show_where_can_move")
+   }
+   event_remove_move_mode(event){
+      if (!$(event.target).hasClass("show_where_can_move")){
+         event.data.self.move_mode = false
+         $(".tile").removeClass("show_where_can_move")
+      }
+      $(".show_where_can_move").off("mouseenter")
+      $(".path_to_move").removeClass("path_to_move")
+   }
+   hover_player(event){ //event on hover
+      event.data.self.show_where_can_move()
+   }
+   mouse_leave(event) { //event on mouseleave
+      if (!event.data.self.move_mode){$(".tile").removeClass("show_where_can_move")}
+   }
+   show_where_can_move(){ 
+      var self = this
+      self.collect_where_can_move().forEach(function(tile){
+         $(tile).addClass("show_where_can_move")
+      })
+   }
+   collect_where_can_move(){
+      var self = this
+      var dom_tiles_where_can_move = []
+      //check the four direction and add each tile around
+      var remaining_mana = this.mana
+      while (remaining_mana >= 1){
+         var has_moved = this.mana - remaining_mana
+         for (var counter=1; counter <=this.mana-has_moved;counter++){
+         dom_tiles_where_can_move.push(
+            //left
+            dom_elem_with_coords({x: this.coords.x + has_moved + 1, y: this.coords.y}), 
+            dom_elem_with_coords({x: this.coords.x + has_moved, y: this.coords.y + counter}), 
+            dom_elem_with_coords({x: this.coords.x + has_moved , y: this.coords.y -counter}),
+            //right
+            dom_elem_with_coords({x: this.coords.x - has_moved - 1, y: this.coords.y}), 
+            dom_elem_with_coords({x: this.coords.x - has_moved, y: this.coords.y + counter}), 
+            dom_elem_with_coords({x: this.coords.x - has_moved , y: this.coords.y -counter}),
+            //up
+            dom_elem_with_coords({x: this.coords.x, y: this.coords.y + has_moved + counter}), 
+            dom_elem_with_coords({x: this.coords.x +1, y: this.coords.y + has_moved}), 
+            dom_elem_with_coords({x: this.coords.x -1 , y: this.coords.y + has_moved}),
+            //down
+            dom_elem_with_coords({x: this.coords.x, y: this.coords.y - has_moved -counter}), 
+            dom_elem_with_coords({x: this.coords.x +1, y: this.coords.y - has_moved}), 
+            dom_elem_with_coords({x: this.coords.x -1 , y: this.coords.y - has_moved})
+            )
+         }
+         remaining_mana -= 1
+      }
+      return dom_tiles_where_can_move
+   }
+   actualise_mana_hud(){
+      $("#available_mana").text(this.mana)
+   }
+}
+var player = new Player()
+</script>

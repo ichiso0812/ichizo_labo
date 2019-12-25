@@ -1,37 +1,19 @@
 <%if session[:user_pseudo].nil?%>
-<style>
-    #forgot_pseudo{
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-</style>
     <%=render "partials/unconnected_user_home"%>
+    
 <%else%>
 <!--CONNECTED USER ONLY-->
-<style>
-</style>
-    <div class="bg-clearpink">
-        <div class="container">
-        <h1 class="text-center mb-5">HELLO Bienvenu sur Ichizo_labo ! spèce de fifou</h1>
-        <section>
-            <div class="row bg-dark txt-white p-5">
-                <div class="col-lg-1"></div>
-                <div class="col-lg-6" id="ban_mirror_img"><%= image_tag 'ban_mirror.png', class:"img-fluid"%></div>
-                <div class="col-lg-4">
-                    <h2 class="text-center">Mirror game</h2>
-                    <ul>
-                        <li>Les blocs sont obigés de bougés ensemble sauf si ils croisent un autre bloc (bouge avec les flèches)</li>
-                        <li>Appuis sur espace pour changer les blocs que tu controles !</li>
-                        <li>Recupère les blocs jaune !</li>
-                    </ul>
-                    <button class="btn btn-success" id="mirror_game_button">Montre qui est le plus fort !</button>
-                    <p>Tu as déja joué x parties à ce jeu !</p>
-                </div>
-                <div class="col-lg-1"></div>
-            </div> 
-        </section>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Hello, bienvenu sur ichizo lablo !</h1>
+            </div>
+            <div class="col-12">
+                <a href=<%=url_for(controller:"games", action:"trpg_rooms")%>>TRPG</a><br/>
+            </div>
         </div>
     </div>
+    
+
 <%end%>
 

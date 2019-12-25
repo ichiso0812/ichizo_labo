@@ -249,7 +249,6 @@
         }
         update(scene){
             scene.physics.moveTo(this, this.destination.x, this.destination.y, 500)
-        moveTo.setRotateToTarget(rotateToTarget);
         }
         /*CLASS METHOD*/
         static destroy(bullet){
@@ -426,6 +425,7 @@
         ladders.create(116,113,"ladder")
     }
 
+    /*USEFUL FUNCTION*/
     function checkOverlap(spriteA, spriteB, offset=12) {
         var boundsA = spriteA.getBounds()
         var boundsB = spriteB.getBounds()

@@ -1,4 +1,4 @@
-var Pawns = []
+/* Pawns = []
 class Pawn{
 	constructor(){
 		Pawns.push(this)
@@ -131,9 +131,9 @@ class Knight{
 		return result
 	}
 
-}
+}*/
 /*PIONS NOIRS*/
-var Black_pawns = []
+/*var Black_pawns = []
 class Black_pawn extends Pawn{
 	constructor(){
 		super()
@@ -192,9 +192,9 @@ class Black_knight extends Knight{
 		this.team = "black"
 		Black_knights.push(this)
 	}
-}
+}*/
 /*PIONS BLANCS*/
-var White_pawns = []
+/*var White_pawns = []
 class White_pawn extends Pawn{
 	constructor(){
 		super()
@@ -328,13 +328,13 @@ function piece_collision(row, col, team){
 	 $(".row").css("height", $("[data-col]").css("width"))
 	 $("[data-col]").css("height", $("[data-col]").css("width"));
  })
-
+*/
  /*USEFUL FUNCTION*/
- function is_empty(obj) { //test empty object
+ /*function is_empty(obj) { //test empty object
     for(var key in obj) {
         if(obj.hasOwnProperty(key))
             return false;
     }
     return true;
-}
+}*/
 

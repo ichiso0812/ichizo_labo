@@ -1,6 +1,9 @@
+#GENERAL
+    #add mail to user and inscription
 #HOMEPAGE
     #animation between canvas
     #add cursor to control math_function_factor dans modulo_anim
+    #Ajouter page d'explication pour le modulo
 
 #Bootstrap
     #charge dependencies js  popper

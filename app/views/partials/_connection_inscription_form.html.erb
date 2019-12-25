@@ -1,0 +1,105 @@
+
+<style>
+    #inscription_section {
+        display: none;
+    }
+    label{
+        color: white;
+    }
+    #inscription_link, #connection_link {
+        cursor: pointer
+    }
+    #connection_inscription_zone{
+        color: white;
+    }
+</style>
+<div class="container-fluid mt-5" id="connection_inscription_zone">
+    <section id="connection_section">
+        <div class="row text-center">
+            <div class="col-md-4 col-sm-12">
+                <p>Connection</p>
+                <div class="form-group d-flex">
+                    <label for="input_connection_pseudo" class="col-sm-2 col-form-label mx-3">Pseudo</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_connection_pseudo" placeholder="Pseudo">
+                    </div>
+                </div>
+                <div class="form-group d-flex">
+                    <label for="input_connection_pass" class="col-sm-2 col-form-label mx-3">Pass</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="input_connection_pass" placeholder="Pass">
+                    </div>
+                </div>
+                <button id="connection_btn" class="btn btn-success">GO !</button>
+                <p>Pas encore de compte ? <span id="inscription_link">Inscrivez vous !</span></p>
+                 <p id="connection_infos_text"></p>
+            </div>
+        </div>
+     </section>
+     <section id="inscription_section">
+        <div class="row text-center">
+            <div class="col-md-4 col-sm-12">
+                <p>Inscription</p>
+                <div class="form-group d-flex">
+                    <label for="input_inscription_pseudo" class="col-sm-2 col-form-label mx-3">Pseudo</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_inscription_pseudo" placeholder="Pseudo">
+                    </div>
+                </div>
+                    <div class="form-group d-flex">
+                    <label for="input_inscription_pass" class="col-sm-2 col-form-label mx-3">Pass</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="input_inscription_pass" placeholder="Pass">
+                    </div>
+                </div>
+                <button id="inscription_btn" class="btn btn-success">Je m'inscris !</button>
+                <p>Vous avez déjà un compte ? <span id="connection_link">Connectez vous</span></p>
+                <p id="inscription_infos_text"></p>
+            </div>
+        </div>
+     </section>
+</div>
+<script>
+    //toggle forms connection - inscription
+    $("#inscription_link").click(function(){
+        $("#inscription_section").show()
+        $("#connection_section").hide()
+    })
+    $("#connection_link").click(function(){
+        $("#inscription_section").hide()
+        $("#connection_section").show()
+    })
+    //inscription
+    $("#inscription_btn").click(function(){
+        $.post(
+            "/user/inscription", 
+            {pseudo: $("#input_inscription_pseudo").val(), pass: $("#input_inscription_pass").val()}, 
+            function(data){
+                if (data.result=="success"){
+                    $("#inscription_section").hide()
+                    $("#connection_section").show()
+                    $("#connection_infos_text").text("Ton compte a été crée ! connecte toi dès maintenant :p")
+                } else if (data.result == "already_exist") {
+                   $("#inscription_infos_text").text("Le pseudo existe déjà mon poto :/")
+                }
+            }
+        )
+    })
+    //connection   
+    $("#connection_btn").click(function(){
+        $.post(
+            "/user/connection", 
+            {pseudo: $("#input_connection_pseudo").val(), pass: $("#input_connection_pass").val()}, 
+            function(data){
+                if (data.result=="inexist") {
+                    $("#connection_infos_text").text("Ce pseudonyme n'existe pas")
+                } else if (data.result=="bad_pass"){
+                    $("#connection_infos_text").text("Le mot de passe n'est pas le bon :/")
+                } else if (data.result=="connected"){
+                    location.reload()
+                }
+            }
+        )
+    })
+    
+</script>

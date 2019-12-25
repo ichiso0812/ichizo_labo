@@ -1,0 +1,41 @@
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-12">
+            <h1>Choisi une room ou créé la tienne</h1>
+        </div>
+        <div class="col-12">
+            <ul>
+                <%@rooms.each do |room|%>
+                    <%=content_tag(:li, "#{room.name} #{room.players_ids.length} joueurs")%>
+                <%end%>
+            </ul>
+        </div>
+        <div class="col-12">
+            <div class="form-group">
+                <label for="input_room_name" class="form-label mx-3">Nom de l'arène</label>
+                <input type="text" class="form-control" id="input_room_name" placeholder="Nom de l'arène">
+            </div>
+            <button id="create_room">Créer l'arène</button>
+        </div>
+    </div>
+</div>
+<script>
+    $("#create_room").click(function(){
+        $.post(
+            "/games/create_trpg_room",
+            {room_name: $("#input_room_name").val()},
+            function(data){
+                location.reload()
+            }
+        )
+    })
+</script>
+<!--
+
+    Nom de la room
+    
+    
+    ##
+    Players id
+
+-->
